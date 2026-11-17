@@ -1,5 +1,5 @@
 # Źródło: child-train@b881e09:.github/workflows/deploy.yml (publikacja artefaktu dist/ na GitHub Pages).
-# W child-bath publikacja jest częścią tego samego przebiegu i zależy od testów.
+# W child-bath publikacja jest wywoływana w tym samym przebiegu dopiero po testach.
 name: Checks
 
 on:
@@ -51,20 +51,12 @@ jobs:
           path: dist
 
   deploy:
-    name: Deploy to GitHub Pages
     needs: checks
     if: >-
       ${{ success() && github.ref == 'refs/heads/main' &&
           (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy the tested artifact
-        id: deployment
-        uses: actions/deploy-pages@v4
+    uses: ./.github/workflows/deploy.yml

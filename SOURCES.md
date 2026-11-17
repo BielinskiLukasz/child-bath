@@ -32,7 +32,8 @@ Każdy plik przeniesiony w całości lub w części z innego repozytorium ma na 
 | `public/sw.js` | child-train `public/sw.js` | nazwa pamięci podręcznej, ikona SVG, limit czasu nawigacji (4 s) |
 | `tools/generate-icons.py` | child-train `tools/generate-icons.py` | rysunek wanny, malowanie w obszarze kształtu, wariant maskable, pomijanie aktualnych plików |
 | `tools/build-fonts.py` | child-train `tools/build-fonts.py` | `urllib` (z `curl` awaryjnie), ścieżki względem repozytorium, sprawdzenie wyniku, opcja `--from` |
-| `.github/workflows/checks.yml` | child-train `.github/workflows/deploy.yml` | publikacja na Pages przeniesiona do wspólnego workflow; na `main` tylko po udanych testach tego samego artefaktu |
+| `.github/workflows/checks.yml` | child-train `.github/workflows/deploy.yml` | artefakt Pages z przetestowanego `dist/` i zależne wywołanie `deploy.yml` |
+| `.github/workflows/deploy.yml` | child-train `.github/workflows/deploy.yml` | sam deploy w trybie `workflow_call`, bez własnego wyzwalacza `push` |
 | `tests/e2e/pwa.spec.ts` | child-train `tests/pwa.spec.ts` | ścieżki pod `/child-bath/`, selektory stref, test manifestu i rozmiarów ikon |
 | `src/bath/steps.ts` | child-page `js/kapiel.js` (`BRUSH`, min. 44 px, `DONE_AT`) | pięć kroków, tryb zmywania lub nakładania, łatwość 80 / 90 / 95% |
 | `src/bath/layers.ts` | child-page `js/kapiel.js` (`drawLayer`, `erase`) | paleta child-train, losowanie z ziarnem, kropka dla pojedynczego dotyku |

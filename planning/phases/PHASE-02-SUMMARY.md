@@ -1,57 +1,33 @@
-# PHASE-02: podsumowanie implementacji (opis PR)
+# PHASE-02: podsumowanie implementacji
 
-> **Plany:** 02-01, 02-02, 02-03 · **Kod:** `child-bath/` · **Stan:** kod gotowy, nieuruchomiony (brak npm i przeglądarki w środowisku, w którym powstał).
+**Plany:** 02-01, 02-02, 02-03. Kod jest w głównym katalogu projektu. W zwykłej sesji działa klasyczny rytuał: zmycie brudu → spłukanie piany → wytarcie wilgoci. Po trzecim kroku kończy się kąpiel i pojawia następne zwierzątko-szkic.
 
-## Co zrobiono
+## Co zostało sprawdzone
 
-### 02-01 · Rdzeń: siatka pokrycia i kroki
-- **`src/bath/coverage.ts`:** siatka 64 × 84 w przestrzeni 256 × 336, stemplowanie kapsułą, postęp; bez DOM i bez alokacji w gorącej ścieżce.
-- **`src/bath/steps.ts`:** 5 kroków (zmywanie i nakładanie), szerokości z `kapiel` (`BRUSH`), łatwość 80 / 90 / 95%, narzędzie ≥ 44 px CSS.
-- **`src/timing.ts`:** wszystkie stałe czasowe w jednym miejscu.
-- **`src/random.ts`:** generator mulberry32 z ziarnem.
-- **Testy:** `coverage`, `steps`, `random` (w tym zakaz `Math.random` poza `random.ts`).
+| Wymaganie | Realizacja i dowód |
+|---|---|
+| REQ-10 · maska i siatka | Kapsuła w przestrzeni logicznej 256 × 336 i siatka 64 × 84. `coverage.spec.ts` sprawdza geometrię; `bath-rendering.spec.ts` porównuje wynik znanego gestu z siatką i pikselami canvasu, także poza sylwetką. |
+| REQ-11 · tryby | Ta sama kapsuła i siatka obsługują `destination-out` i `source-over`. `?test=1&layer=apply` uruchamia tylko próbę nakładania; zwykły rytuał się nie zmienia. Testy `bath-session` i `bath-rendering` sprawdzają oba zachowania. |
+| REQ-12 · domknięcie | Reducer domyka krok przy 80/90/95%. Testy sprawdzają wartości tuż poniżej i na progu, zanik 0,5 s w tempie 1× oraz brak zaniku w trybie ograniczonego ruchu. Zygzak w `bath.spec.ts` przechodzi wszystkie trzy kroki. |
+| REQ-13–15 · wejście i narzędzie | Mysz i wskaźniki dotykowe mają osobne gesty. Pula znaczników pokazuje narzędzie pod każdym aktywnym palcem; jego obrys pokrywa się ze śladem i ma średnicę co najmniej 44 px CSS. Testy mierzą położenie narzędzi i różnicę postępu między jednym i dwoma palcami. |
+| REQ-16 · efekty | Pula ma 28 węzłów SVG, cząsteczki łagodnie się pojawiają i zanikają. Strumień od góry pudełka do punktu dotyku skaluje się przez `transform`. Testy obejmują geometrię strumienia, limit puli, ruch i wygaszanie cząsteczek. |
+| REQ-17 · resize i pauza | Obrót nie zmienia bitmapy ani postępu i kończy rozpoczęty gest, żeby nie narysować odcinka z poprzedniego układu. Test z kontrolowanym zegarem potwierdza pauzę w trakcie `stage_rest` i wznowienie bez skoku czasu. |
+| REQ-18 · czysty rdzeń | Weryfikacja siatki, kroków, reducera i RNG jest deterministyczna. Skan `random.spec.ts` wymusza brak `Math.random` poza modułem generatora. Canvas nie jest odczytywany podczas rozgrywki. |
 
-### 02-02 · Reducer faz i zegar
-- **`src/game.ts`:** czysty reducer `stage_in → scrubbing → stage_rest → (kolejny krok | reward) → done → newAnimal`. Akcje spoza fazy są ignorowane.
-- **`src/hooks/useBathClock.ts`:** jedna pętla rAF z krokiem do 50 ms. Staje, gdy nic nie trwa, i przy ukrytej karcie; po powrocie rusza bez skoku czasu.
-- **Testy:** `bath-reducer` (pełna sekwencja, ignorowane akcje, powtarzalność, tempo, ograniczony ruch).
+## Ustalenia techniczne i granice fazy
 
-### 02-03 · Widok
-- **`BathStage.tsx`:** pudełko 64 : 84 (wzór rozmiaru z `kapiel`, `ResizeObserver`) i atrybuty `data-phase`, `data-step`, `data-progress`, `data-animal`.
-- **Warstwa:** `LayerCanvas.tsx` i `layers.ts`; canvas o rozmiarze LW·DPR (DPR ≤ 2), przycinanie do sylwetki, `destination-out`.
-- **Wejście i efekty:**
-  - `useScrub.ts`: wiele palców, przechwycenie wskaźnika, zdarzenia scalone, ruch bez renderowania Reacta;
-  - `ToolCursor.tsx`: narzędzie dokładnie pod palcem albo kursorem;
-  - `Particles.tsx` z `particles.ts`: pula 28 kółek, tylko `transform` i `opacity`;
-  - strumień wody w kroku spłukiwania.
-- **Zwierzątko-szkic:** `sketch.ts` (geometria jako dane: SVG, `Path2D` i maska z jednego opisu) oraz `SketchAnimal.tsx`.
-- **Testy e2e `bath.spec.ts`:** 3 kroki myszą i nowe zwierzątko; 2 palce przez CDP; obrót ekranu; ukryta karta; zero zapytań sieciowych.
+- Stan `done` pozwala przekazać reducerowi nowe ziarno z komponentu zamiast losować w reducerze. Maska siatki jest obliczana analitycznie z tych samych kół i elips, co SVG i `Path2D`; nie potrzebuje canvasu ani asynchronicznych obrazów.
+- Przy tempie 0,8× widoczny zanik nadal trwa co najmniej 0,5 s zgodnie z zasadą spokoju. Po puszczeniu palca narzędzie zanika; po zwolnieniu przycisku myszy zostaje pod kursorem, dopóki jest on nad pudełkiem. Przy wycieraniu nie powstają bańki ani krople.
+- Nakładanie jest fundamentem renderera. Właściwe namydlanie, czesanie, kolejne rytuały i ślady zabawy pozostają w Fazie 7. Sterowanie klawiaturą i zapowiedź należą do Fazy 3, gotowe postacie do Fazy 4, a źródła wody do Fazy 6.
 
-## Pokryte wymagania
+## Wynik lokalny
 
-| REQ | Realizacja | Test |
-|---|---|---|
-| REQ-10 | warstwa przycięta do sylwetki, siatka pokrycia | `coverage`, `bath.spec` |
-| REQ-11 | `StepMode` erase/apply, jedna siatka | `steps` |
-| REQ-12 | progi łatwości, zanik 0,5 s (0 s przy ograniczonym ruchu) | `bath-reducer`, `bath.spec` |
-| REQ-13 | `useScrub` (wiele palców, capture, `touch-action: none`) | `bath.spec` (mysz, 2 palce) |
-| REQ-14 | `ToolCursor` | przegląd |
-| REQ-15 | `brushRadius`, `toolDiameterCss` | `steps` |
-| REQ-16 | `particles.ts`, `Particles.tsx`, strumień | przegląd |
-| REQ-17 | logiczne współrzędne, `useBathClock` | `bath.spec` (obrót, ukryta karta) |
-| REQ-18 | czyste moduły z testami | `coverage`, `steps`, `bath-reducer`, `random` |
+- `npm run typecheck` i `npm run build` przeszły w głównym katalogu projektu.
+- `CI=1 PLAYWRIGHT_PREBUILT=1 npm test`: **90 zaliczonych, 1 pominięty, 0 błędów**. Pominięty jest test wielodotyku w projekcie `desktop`; przechodzi na obu profilach dotykowych. Testy nie zmieniły `dist/`.
+- Zrzuty z emulacji Chromium w trybie `?test=1`: `artifacts/phase-02/pion.png` (360 × 640) i `artifacts/phase-02/poziom.png` (640 × 360). To lokalne materiały do przeglądu, nie test na fizycznym urządzeniu.
 
-## Odchylenia od planu
+## Przed zamknięciem
 
-1. **Faza `done`:** dodatkowa faza po nagrodzie. Reducer nie losuje, więc nowe ziarno przychodzi w akcji `newAnimal` z komponentu.
-2. **Zwierzątko pojawia się i znika płynnie:** zanika w ostatnich 0,7 s nagrody, a kolejne pojawia się razem z pierwszą warstwą. Zasada 1 (spokój) wymaga płynnej zmiany; w planie zmiana była natychmiastowa.
-3. **Rysunek szkicu w osobnym pliku:** `SketchAnimal.tsx`, żeby `sketch.ts` został czystym modułem testowanym bez przeglądarki.
-4. **Bez cząsteczek przy wycieraniu:** w kroku wycierania nie ma baniek (ręcznik nie pieni), a krople są tylko przy spłukiwaniu.
-5. **`settings/testParams.ts` już w tej fazie:** parametry `seed`, `ease`, `pace` z `?test=1` (w planie od Fazy 3, ale testy Fazy 2 ich potrzebują).
-6. **Korzeń `.little-world`** odzwierciedla fazę kąpieli (`data-phase`); test układu z Fazy 1 jest dostosowany.
-
-## Do sprawdzenia przy pierwszym uruchomieniu
-
-- `npm run typecheck`: kod nie był kompilowany, możliwe drobne błędy typów, zwłaszcza w typach React 19.
-- `npm test`: test 2 palców (CDP) działa tylko w projektach `phone` i `small`. Próg „≥ 1,4 × jeden palec” może wymagać korekty.
-- Telefon: płynność pocierania, czy narzędzie jest dokładnie pod palcem, łagodność zaniku warstw (lista w PHASE-02, „Weryfikacja fazy”).
+- [ ] Potwierdzić zielony przebieg GitHub Actions dla tych zmian.
+- [ ] Na fizycznym telefonie sprawdzić płynność jednego i dwóch palców, położenie narzędzi, obrót i łagodne przejścia. Emulacja w Chromium nie zastępuje tej próby.
+- [ ] Po akceptacji odhaczyć plany 02-01–02-03 w ROADMAP.

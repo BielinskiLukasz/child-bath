@@ -39,7 +39,11 @@
 
 .bath-animal[data-reward] .sketch-animal {
   transform-origin: 50% 90%;
-  animation: bath-breathe 2.4s ease-in-out infinite;
+  animation: bath-breathe var(--bath-breath) ease-in-out infinite;
+}
+
+.bath-box[data-paused="true"] .sketch-animal {
+  animation-play-state: paused;
 }
 
 @keyframes bath-breathe {
@@ -68,37 +72,37 @@
   fill: var(--water, #a6c8c7);
 }
 
-/* Strumień wody w kroku spłukiwania: od góry pudełka do palca. */
-.bath-shower {
-  inset: auto;
-  left: 0;
-  top: 0;
-  height: 0;
-  border-radius: 0 0 999px 999px;
-  background: var(--water, #a6c8c7);
-  opacity: 0;
+/* Pole narzędzia i strumień są w tej samej przestrzeni logicznej co canvas. */
+.bath-tools {
+  overflow: visible;
   pointer-events: none;
-  transition: opacity 0.5s ease;
 }
 
-.bath-shower[data-visible="true"] {
-  opacity: 0.5;
-}
-
+.bath-shower,
 .tool-cursor {
-  inset: auto;
-  left: 0;
-  top: 0;
   opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-  will-change: transform;
+  transition: opacity var(--bath-tool-fade) ease;
 }
 
-.tool-cursor svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+.bath-shower {
+  fill: var(--water, #a6c8c7);
+  transform-origin: 0 0;
+}
+
+.bath-tools[data-tool="rinse"] .bath-shower[data-visible="true"] {
+  opacity: 0.46;
+}
+
+.tool-footprint {
+  fill: var(--foam, #fffcf3);
+  fill-opacity: 0.25;
+}
+
+.tool-rim {
+  fill: none;
+  stroke: var(--foam, #fffcf3);
+  stroke-opacity: 0.68;
+  stroke-width: 1;
 }
 
 .tool-cursor[data-visible="true"] {
@@ -106,7 +110,7 @@
 }
 
 .bath-box:not([data-phase="scrubbing"]) .tool-cursor,
-.bath-box:not([data-phase="scrubbing"]) .bath-shower {
+.bath-box:not([data-phase="scrubbing"]) .bath-tools[data-tool] .bath-shower {
   opacity: 0;
 }
 

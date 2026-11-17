@@ -80,6 +80,26 @@ test("pocieranie myszą przechodzi trzy kroki, a potem pojawia się nowe zwierz�
   for (const step of ["scrub", "rinse", "dry"]) {
     await expect(stage).toHaveAttribute("data-step", step, { timeout: 15_000 });
     await waitPhase(page, "scrubbing");
+    await expect(page.locator(".bath-particle")).toHaveCount(28);
+    if (step === "rinse") {
+      const box = await boxOf(page);
+      const x = Math.round(box.x + box.width * 0.6);
+      const y = Math.round(box.y + box.height * 0.4);
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      try {
+        const stream = page.locator(".bath-shower[data-visible='true']");
+        await expect(stream).toHaveCSS("opacity", "0.46");
+        const bounds = await stream.boundingBox();
+        if (!bounds) throw new Error("Strumień nie ma wymiarów.");
+        expect(Math.abs(bounds.x + bounds.width / 2 - x)).toBeLessThan(1);
+        expect(Math.abs(bounds.y - box.y)).toBeLessThan(1);
+        expect(Math.abs(bounds.y + bounds.height - y)).toBeLessThan(1);
+      } finally {
+        await page.mouse.up();
+      }
+      await expect(page.locator(".bath-shower[data-visible='true']")).toHaveCount(0);
+    }
     await scrubWithMouse(page);
   }
 
@@ -98,24 +118,34 @@ test("dwa palce naraz myją szybciej niż jeden", async ({ page }, testInfo) => 
   expect(two).toBeGreaterThan(one * 1.4);
 });
 
-test("obrót ekranu w trakcie kroku nie zmienia postępu", async ({ page }) => {
+test("obrót podczas pocierania nie zmienia postępu i nie rysuje przypadkowego odcinka", async ({ page }) => {
   await page.goto("./?test=1&seed=5");
   await waitPhase(page, "scrubbing");
   const box = await boxOf(page);
   await page.mouse.move(box.x + box.width * 0.25, box.y + box.height * 0.6);
   await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.6, { steps: 10 });
-  await page.mouse.up();
-  await expect.poll(() => progressOf(page)).toBeGreaterThan(0);
-  await page.waitForTimeout(200);
-  const before = await progressOf(page);
+  try {
+    await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.6, { steps: 10 });
+    await expect.poll(() => progressOf(page)).toBeGreaterThan(0);
+    const before = await progressOf(page);
+    const layer = page.locator(".bath-layer");
+    const bitmap = () => layer.evaluate((element) => (element as HTMLCanvasElement).toDataURL());
+    const beforeImage = await bitmap();
 
-  const viewport = page.viewportSize();
-  if (!viewport) throw new Error("Brak rozmiaru okna.");
-  await page.setViewportSize({ width: viewport.height, height: viewport.width });
-  await page.waitForTimeout(400);
-  expect(await progressOf(page)).toBe(before);
-  await expect(page.locator(STAGE)).toHaveAttribute("data-phase", "scrubbing");
+    const viewport = page.viewportSize();
+    if (!viewport) throw new Error("Brak rozmiaru okna.");
+    await page.setViewportSize({ width: viewport.height, height: viewport.width });
+    await expect.poll(async () => (await boxOf(page)).height).not.toBe(box.height);
+    await expect(page.locator(".tool-cursor[data-visible='true']")).toHaveCount(0);
+    const rotated = await boxOf(page);
+    // Wskaźnik jest wciąż wciśnięty, ale stary gest został wyczyszczony przez obrót.
+    await page.mouse.move(rotated.x + rotated.width / 2, rotated.y + rotated.height * 0.25);
+    expect(await progressOf(page)).toBe(before);
+    expect(await bitmap() === beforeImage, "Obrót i ruch bez nowego nacisku nie przemalowują canvasu").toBe(true);
+    await expect(page.locator(STAGE)).toHaveAttribute("data-phase", "scrubbing");
+  } finally {
+    await page.mouse.up();
+  }
 });
 
 test("ukryta karta wstrzymuje przejście, a po powrocie zabawa toczy się dalej", async ({ page }) => {

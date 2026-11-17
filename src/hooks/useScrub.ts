@@ -1,21 +1,18 @@
-// Źródło: child-page@e7a19ac:js/kapiel.js (down/move/up: przechwycenie wskaźnika, wiele palców, przeliczenie na współrzędne logiczne).
-// Zmiany: hook Reacta, zdarzenia scalone (getCoalescedEvents), wskaźnik myszy bez wciśnięcia dla narzędzia pod kursorem.
+// Źródło: child-page@e7a19ac:js/kapiel.js (down/move/up: przechwycenie wskaźnika, wiele palców, współrzędne logiczne).
+// Zmiany: hook Reacta, zdarzenia scalone i osobne znaczniki narzędzia, bez stanu Reacta w obsłudze ruchu.
 import { useEffect, useRef, type RefObject } from "react";
 import { LH, LW } from "../bath/coverage";
 
-export type PointerPhase = "down" | "move" | "up" | "hover" | "leave";
+type PointerPosition = { x: number; y: number; left: number; top: number; width: number; height: number };
 
 export interface ScrubCallbacks {
-  /** Odcinek ruchu jednego palca w jednostkach logicznych (pojedynczy dotyk: x0 = x1, y0 = y1). */
   onSegment(x0: number, y0: number, x1: number, y1: number): void;
-  /** Położenie wskaźnika do narzędzia pod palcem; active = liczba wciśniętych wskaźników. */
-  onPointer(x: number, y: number, phase: PointerPhase, active: number, pointerType: string): void;
+  onPointer(id: number, x: number, y: number, pressed: boolean): void;
+  onPointerEnd(id: number): void;
+  onReset(): void;
 }
 
-/**
- * Zamienia zdarzenia wskaźnika na odcinkach pudełka zwierzątka na odcinki w przestrzeni 256 × 336.
- * Ruch nie przechodzi przez stan Reacta (tylko wywołania zwrotne), więc nie wywołuje renderowania.
- */
+/** Przelicza ruch na odcinki w przestrzeni 256 × 336. Każdy wskaźnik ma własny stan. */
 export function useScrub(target: RefObject<HTMLElement | null>, callbacks: ScrubCallbacks): void {
   const callbacksRef = useRef(callbacks);
   useEffect(() => {
@@ -25,72 +22,110 @@ export function useScrub(target: RefObject<HTMLElement | null>, callbacks: Scrub
   useEffect(() => {
     const element = target.current;
     if (!element) return;
-    const pointers = new Map<number, [number, number]>();
-    const toLogical = (event: PointerEvent): [number, number] => {
-      const rect = element.getBoundingClientRect();
-      return [((event.clientX - rect.left) / rect.width) * LW, ((event.clientY - rect.top) / rect.height) * LH];
-    };
+    const pointers = new Map<number, PointerPosition>();
+    const logicalX = (event: PointerEvent, rect: DOMRect) => (event.clientX - rect.left) * LW / rect.width;
+    const logicalY = (event: PointerEvent, rect: DOMRect) => (event.clientY - rect.top) * LH / rect.height;
 
     const down = (event: PointerEvent) => {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
-      const point = toLogical(event);
-      pointers.set(event.pointerId, point);
+      if (document.hidden || (event.pointerType === "mouse" && event.button !== 0)) return;
+      const rect = element.getBoundingClientRect();
+      if (!(rect.width > 0 && rect.height > 0)) return;
+      const x = logicalX(event, rect);
+      const y = logicalY(event, rect);
+      pointers.set(event.pointerId, { x, y, left: rect.left, top: rect.top, width: rect.width, height: rect.height });
       try {
         element.setPointerCapture(event.pointerId);
       } catch {
-        // Syntetyczne wskaźniki (testy) nie zawsze pozwalają na przechwycenie.
+        // Syntetyczne wskaźniki nie zawsze pozwalają na przechwycenie.
       }
-      callbacksRef.current.onSegment(point[0], point[1], point[0], point[1]);
-      callbacksRef.current.onPointer(point[0], point[1], "down", pointers.size, event.pointerType);
+      callbacksRef.current.onSegment(x, y, x, y);
+      callbacksRef.current.onPointer(event.pointerId, x, y, true);
       event.preventDefault();
     };
 
     const move = (event: PointerEvent) => {
+      if (document.hidden) return;
       const previous = pointers.get(event.pointerId);
-      if (!previous) {
-        if (event.pointerType === "mouse") {
-          const point = toLogical(event);
-          callbacksRef.current.onPointer(point[0], point[1], "hover", pointers.size, event.pointerType);
+      if (!previous && event.pointerType !== "mouse") return;
+      const rect = element.getBoundingClientRect(); // Jeden odczyt również dla całej paczki getCoalescedEvents().
+      if (!(rect.width > 0 && rect.height > 0)) return;
+      const x = logicalX(event, rect);
+      const y = logicalY(event, rect);
+      const cb = callbacksRef.current;
+      if (previous) {
+        if (previous.left !== rect.left || previous.top !== rect.top || previous.width !== rect.width || previous.height !== rect.height) {
+          // Nie łączymy odcinkiem punktów ze starego i nowego układu, np. po obrocie telefonu.
+          cb.onSegment(x, y, x, y);
+        } else {
+          let lastX = previous.x;
+          let lastY = previous.y;
+          const coalesced = event.getCoalescedEvents?.();
+          if (coalesced) for (const item of coalesced) {
+            const nextX = logicalX(item, rect);
+            const nextY = logicalY(item, rect);
+            cb.onSegment(lastX, lastY, nextX, nextY);
+            lastX = nextX;
+            lastY = nextY;
+          }
+          if (!coalesced?.length || x !== lastX || y !== lastY) cb.onSegment(lastX, lastY, x, y);
         }
-        return;
+        previous.x = x;
+        previous.y = y;
+        previous.left = rect.left;
+        previous.top = rect.top;
+        previous.width = rect.width;
+        previous.height = rect.height;
       }
-      const coalesced = typeof event.getCoalescedEvents === "function" ? event.getCoalescedEvents() : [];
-      let last = previous;
-      for (const item of coalesced.length > 0 ? coalesced : [event]) {
-        const point = toLogical(item);
-        callbacksRef.current.onSegment(last[0], last[1], point[0], point[1]);
-        last = point;
-      }
-      pointers.set(event.pointerId, last);
-      callbacksRef.current.onPointer(last[0], last[1], "move", pointers.size, event.pointerType);
+      cb.onPointer(event.pointerId, x, y, Boolean(previous));
     };
 
     const up = (event: PointerEvent) => {
-      const previous = pointers.get(event.pointerId);
-      if (!previous) return;
-      pointers.delete(event.pointerId);
-      callbacksRef.current.onPointer(previous[0], previous[1], "up", pointers.size, event.pointerType);
+      if (!pointers.delete(event.pointerId)) return;
+      if (!document.hidden && event.pointerType === "mouse") {
+        const rect = element.getBoundingClientRect();
+        if (event.clientX >= rect.left && event.clientX < rect.right && event.clientY >= rect.top && event.clientY < rect.bottom) {
+          callbacksRef.current.onPointer(event.pointerId, logicalX(event, rect), logicalY(event, rect), false);
+          return;
+        }
+      }
+      callbacksRef.current.onPointerEnd(event.pointerId);
     };
 
+    const cancel = (event: PointerEvent) => {
+      if (pointers.delete(event.pointerId)) callbacksRef.current.onPointerEnd(event.pointerId);
+    };
     const leave = (event: PointerEvent) => {
-      if (event.pointerType === "mouse" && !pointers.has(event.pointerId)) {
-        callbacksRef.current.onPointer(0, 0, "leave", pointers.size, event.pointerType);
+      if (!pointers.has(event.pointerId)) callbacksRef.current.onPointerEnd(event.pointerId);
+    };
+    const clear = () => {
+      for (const id of pointers.keys()) {
+        pointers.delete(id);
+        if (element.hasPointerCapture(id)) element.releasePointerCapture(id);
       }
+      callbacksRef.current.onReset();
+    };
+    const onVisibility = () => {
+      if (document.hidden) clear();
     };
 
     element.addEventListener("pointerdown", down);
     element.addEventListener("pointermove", move);
     element.addEventListener("pointerup", up);
-    element.addEventListener("pointercancel", up);
-    element.addEventListener("lostpointercapture", up);
+    element.addEventListener("pointercancel", cancel);
+    element.addEventListener("lostpointercapture", cancel);
     element.addEventListener("pointerleave", leave);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("resize", clear);
     return () => {
       element.removeEventListener("pointerdown", down);
       element.removeEventListener("pointermove", move);
       element.removeEventListener("pointerup", up);
-      element.removeEventListener("pointercancel", up);
-      element.removeEventListener("lostpointercapture", up);
+      element.removeEventListener("pointercancel", cancel);
+      element.removeEventListener("lostpointercapture", cancel);
       element.removeEventListener("pointerleave", leave);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("resize", clear);
+      clear();
     };
   }, [target]);
 }

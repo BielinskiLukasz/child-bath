@@ -20,6 +20,8 @@ export function useBathClock(tick: (dt: number) => boolean): () => void {
 
   const frame = useCallback((now: number) => {
     raf.current = 0;
+    // Zdarzenie visibilitychange mogło jeszcze nie anulować już zaplanowanej klatki.
+    if (document.hidden) return;
     const dt = Math.min(Math.max(0, (now - last.current) / 1000), TIMING.maxDt);
     last.current = now;
     const busy = tickRef.current(dt);

@@ -1,22 +1,16 @@
-// Źródło: child-page@e7a19ac:js/kapiel.js (drawLayer i erase: warstwy przycięte do sylwetki, plamy z source-atop, zmywanie destination-out).
-// Zmiany: kolory z palety child-train (krem zamiast bieli, ziemiste plamy), losowanie z ziarnem, kropka zamiast odcinka zerowej długości.
+// Źródło: child-page@e7a19ac:js/kapiel.js (drawLayer i erase: warstwy przycięte do sylwetki, zmywanie destination-out).
+// Zmiany: paleta child-train, wzory z ziarnem, wspólna kapsuła zmywania i nakładania.
 import type { Rng } from "../random";
 import { LH, LW } from "./coverage";
-import type { StepKind } from "./steps";
+import type { StepDef, StepKind } from "./steps";
 
-/** Warstwy robocze Fazy 2. Ślady zabawy (błotko, mech, pyłek…) dochodzą w Fazie 7. */
+/** Warstwy robocze Fazy 2. Właściwe ślady zabawy, namydlanie i czesanie dochodzą w Fazie 7. */
 export type LayerKind = "dirt" | "foam" | "damp";
 
 export function layerKindFor(step: StepKind): LayerKind {
-  switch (step) {
-    case "scrub":
-      return "dirt";
-    case "lather":
-    case "rinse":
-      return "foam";
-    default:
-      return "damp";
-  }
+  if (step === "scrub") return "dirt";
+  if (step === "lather" || step === "rinse") return "foam";
+  return "damp";
 }
 
 function dot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string): void {
@@ -26,13 +20,16 @@ function dot(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, fil
   ctx.fill();
 }
 
-/** Maluje świeżą warstwę kroku w jednostkach logicznych (kontekst ma już skalę DPR). */
-export function paintLayer(ctx: CanvasRenderingContext2D, kind: LayerKind, silhouette: Path2D, rng: Rng): void {
+/** Przygotowuje roboczą warstwę kroku. Przy nakładaniu jej cały obszar jest na początku pusty. */
+export function paintLayer(ctx: CanvasRenderingContext2D, step: StepDef, silhouette: Path2D, rng: Rng): void {
+  ctx.clearRect(0, 0, LW, LH);
+  if (step.mode === "apply") return;
+
   ctx.save();
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = 1;
-  ctx.clearRect(0, 0, LW, LH);
   ctx.clip(silhouette);
+  const kind = layerKindFor(step.kind);
   const point = () => [rng.float() * LW, rng.float() * LH] as const;
 
   if (kind === "dirt") {
@@ -57,7 +54,6 @@ export function paintLayer(ctx: CanvasRenderingContext2D, kind: LayerKind, silho
       if (rng.float() < 0.35) dot(ctx, x - r * 0.35, y - r * 0.35, 1.2, "#ffffff");
     }
   } else {
-    // Wilgoć: ciemniejszy odcień futra i kremowe kropelki.
     ctx.globalAlpha = 0.34;
     ctx.fillStyle = "#4e6754";
     ctx.fillRect(0, 0, LW, LH);
@@ -70,14 +66,23 @@ export function paintLayer(ctx: CanvasRenderingContext2D, kind: LayerKind, silho
   ctx.restore();
 }
 
-/** Zmywa kapsułę wzdłuż odcinka; pojedynczy dotyk zmywa koło. */
-export function eraseSegment(ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number, r: number): void {
+/** Rysuje tę samą kapsułę, którą stampSegment liczy w siatce. Nie odczytuje obrazu. */
+export function paintStroke(
+  ctx: CanvasRenderingContext2D, step: StepDef, silhouette: Path2D,
+  x0: number, y0: number, x1: number, y1: number, r: number,
+): void {
+  if (!(r > 0)) return;
+  const apply = step.mode === "apply";
+  const fill = apply ? (step.kind === "groom" ? "#f5eedb" : "#fffcf3") : "#000";
   ctx.save();
-  ctx.globalCompositeOperation = "destination-out";
-  if (Math.hypot(x1 - x0, y1 - y0) < 0.01) {
-    dot(ctx, x1, y1, r, "#000");
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = apply ? "source-over" : "destination-out";
+  if (apply) ctx.clip(silhouette); // Zmywanie usuwa wyłącznie istniejące, już przycięte piksele.
+
+  if (x0 === x1 && y0 === y1) {
+    dot(ctx, x1, y1, r, fill);
   } else {
-    ctx.strokeStyle = "#000";
+    ctx.strokeStyle = fill;
     ctx.lineCap = "round";
     ctx.lineWidth = 2 * r;
     ctx.beginPath();

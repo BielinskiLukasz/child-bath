@@ -267,7 +267,7 @@ Zależności pozwalają też pracować równolegle (np. kilkoma agentami na osob
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Fundamenty | 0/3 | In progress (kod w `child-bath/`, czeka na weryfikację) | - |
-| 2. Silnik kąpieli | 0/3 | In progress (kod w `child-bath/`, czeka na weryfikację) | - |
+| 2. Silnik kąpieli | 0/3 | Implementacja gotowa; do zamknięcia: GitHub Actions i przegląd na fizycznym telefonie | - |
 | 3. Sterowanie i przejścia | 0/3 | Not started | - |
 | 4. Postacie | 0/4 | Not started | - |
 | 5. Menażeria | 0/4 | Not started | - |

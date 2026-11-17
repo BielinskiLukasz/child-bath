@@ -139,10 +139,10 @@ plans: [01-01, 01-02, 01-03]
      - port strategii network-first z child-train (cache `child-bath-v1`, precache powłoki, manifestu i ikon);
      - rejestracja tylko dla `https:` i `localhost`, nie dla `file:`.
    - Gotowe gdy: ponowne otwarcie bez sieci serwuje powłokę z cache.
-3. **CI i wdrożenie** · `.github/workflows/checks.yml`
+3. **CI i wdrożenie** · `.github/workflows/checks.yml` i wywoływany `.github/workflows/deploy.yml`
    - Działanie:
      - checks (PR, push na `main` lub ręczne uruchomienie): `npm ci`, `npx playwright install --with-deps chromium`, `npm run typecheck`, `npm run build`, `npm test` na gotowym `dist/`;
-     - po udanych testach na `main`: `actions/upload-pages-artifact` (sprawdzony `dist/`) → zależne zadanie `deploy` z `actions/deploy-pages`;
+     - po udanych testach na `main`: `actions/upload-pages-artifact` (sprawdzony `dist/`) → zadanie zależne od `checks` wywołuje `deploy.yml` w tym samym przebiegu; `deploy.yml` nie ma własnego wyzwalacza `push`;
      - autor jednorazowo ustawia Pages → Source: GitHub Actions.
    - Gotowe gdy: PR pokazuje wynik checks bez publikacji, a `main` wdraża tylko build, który przeszedł testy.
 4. **Testy strażnicze** · `playwright.config.ts`, `tests/e2e/pwa.spec.ts`, `tests/e2e/offline-file.spec.ts`, `tests/e2e/privacy.spec.ts`, `tests/unit/no-audio.spec.ts`

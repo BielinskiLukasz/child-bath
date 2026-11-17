@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { CLASSIC_STEPS } from "../../src/bath/steps";
-import { bathReducer, createBathState, type BathAction, type BathState } from "../../src/game";
+import { CLASSIC_STEPS, EASE, type EaseKey } from "../../src/bath/steps";
+import { bathReducer, createBathState, phaseDuration, type BathAction, type BathState } from "../../src/game";
 import { TIMING } from "../../src/timing";
 
 const tick = (dt: number, pace = 1, reduced = false): BathAction => ({ type: "tick", dt, pace, reduced });
@@ -80,6 +80,28 @@ test("łatwość ustala próg, a ograniczony ruch skraca zanik reszty do zera", 
   expect(state.phase).toBe("stage_rest");
   state = bathReducer(state, tick(0.016, 1, true));
   expect(state).toMatchObject({ phase: "stage_in", stepIndex: 1 });
+});
+
+for (const ease of Object.keys(EASE) as EaseKey[]) {
+  test(`krok domyka się dopiero przy dokładnym progu ${EASE[ease].threshold * 100}% (${ease})`, () => {
+    const threshold = EASE[ease].threshold;
+    const initial = createBathState(["lather", "rinse"], 4, ease);
+    const started = run(bathReducer(initial, { type: "layerReady" }), ticksFor(TIMING.stageIn));
+    const almost = bathReducer(started, { type: "progress", value: threshold - 0.001 });
+    expect(almost).toMatchObject({ phase: "scrubbing", stepIndex: 0 });
+    expect(bathReducer(almost, { type: "progress", value: 0.1 })).toBe(almost);
+    const rest = bathReducer(almost, { type: "progress", value: threshold });
+    expect(rest).toMatchObject({ phase: "stage_rest", progress: threshold, phaseT: 0 });
+    const fading = bathReducer(rest, tick(0.49));
+    expect(fading.phase).toBe("stage_rest");
+    expect(bathReducer(fading, tick(0.01))).toMatchObject({ phase: "stage_in", stepIndex: 1, progress: 0 });
+  });
+}
+
+test("przy szybszym tempie zanik nie schodzi poniżej pół sekundy", () => {
+  expect(phaseDuration("stage_rest", 0.8, false)).toBe(0.5);
+  expect(phaseDuration("stage_rest", 1.45, false)).toBeCloseTo(0.725);
+  expect(phaseDuration("stage_rest", 1.45, true)).toBe(0);
 });
 
 test("rytuał musi mieć co najmniej jeden krok", () => {

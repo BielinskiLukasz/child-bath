@@ -17,7 +17,7 @@
 | REQ-05 · polski | `lang="pl"`, właściwy tytuł, cztery strefy, ramki i przykładowa treść tylko z `?test=1`. |
 | REQ-06 · telefon | Brak przewijania przy 360 × 640, 640 × 360 i 1280 × 800; ziarno nie blokuje dotyku. Z emulowanymi wcięciami tytuł i próbny przycisk pozostają w bezpiecznej strefie. |
 | REQ-07 · źródła i MIT | Licencja, `SOURCES.md` i komentarze źródłowe, w tym pochodzenie osadzonych fontów. Test źródeł przeszedł. |
-| REQ-76 · CI i deploy | Jeden workflow Checks uruchamia `npm ci`, typecheck, build i Playwright. Zadanie `deploy` zależy od `checks` i publikuje tylko przetestowany `dist/` z `main`. Potwierdzenie przebiegu po publikacji zmian wymaga GitHub Actions. |
+| REQ-76 · CI i deploy | Jeden przebieg Checks uruchamia `npm ci`, typecheck, build i Playwright. Po sukcesie na `main` zadanie `deploy` wywołuje `deploy.yml` z `workflow_call` i publikuje ten sam `dist/`. Potwierdzenie przebiegu po publikacji zmian wymaga GitHub Actions. |
 
 ## Stan GitHub Actions i kroki do zamknięcia
 

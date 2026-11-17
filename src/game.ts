@@ -8,7 +8,7 @@
  * Faza 3 dodaje zapowiedź i „Dalej”, Faza 8 ławeczkę i rundy.
  */
 import { EASE, type EaseKey, type StepKind } from "./bath/steps";
-import { TIMING, scaled } from "./timing";
+import { TIMING, fadeDuration, scaled } from "./timing";
 
 export type BathPhase = "stage_in" | "scrubbing" | "stage_rest" | "reward" | "done";
 
@@ -58,9 +58,9 @@ export function currentStep(state: BathState): StepKind {
 export function phaseDuration(phase: BathPhase, pace: number, reduced: boolean): number {
   switch (phase) {
     case "stage_in":
-      return scaled(TIMING.stageIn, pace);
+      return fadeDuration(TIMING.stageIn, pace);
     case "stage_rest":
-      return reduced ? 0 : scaled(TIMING.stageRest, pace);
+      return reduced ? 0 : fadeDuration(TIMING.stageRest, pace);
     case "reward":
       return scaled(TIMING.reward, pace);
     default:
@@ -100,8 +100,9 @@ export function bathReducer(state: BathState, action: BathAction): BathState {
     case "progress": {
       if (state.phase !== "scrubbing" || !Number.isFinite(action.value)) return state;
       const value = clamp01(action.value);
+      if (value <= state.progress) return state;
       if (value >= state.threshold) return { ...state, progress: value, phase: "stage_rest", phaseT: 0 };
-      return value === state.progress ? state : { ...state, progress: value };
+      return { ...state, progress: value };
     }
 
     case "tick": {

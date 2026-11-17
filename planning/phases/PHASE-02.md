@@ -229,5 +229,5 @@ export function brushRadius(step: StepDef, ease: keyof typeof EASE, boxWidthCss:
 
 ## Stan implementacji
 
-- **Kod:** `child-bath/` (plany 02-01, 02-02 i 02-03). Podsumowanie i odchylenia: [PHASE-02-SUMMARY.md](PHASE-02-SUMMARY.md).
-- **Czeka na:** pierwsze `npm run typecheck` i `npm test` oraz przegląd na telefonie.
+- **Kod:** plany 02-01, 02-02 i 02-03 są zaimplementowane w głównym katalogu projektu. Podsumowanie, pokrycie testami i odchylenia: [PHASE-02-SUMMARY.md](PHASE-02-SUMMARY.md).
+- **Czeka na formalne zamknięcie:** zielony przebieg GitHub Actions dla tych zmian oraz przegląd na fizycznym telefonie. Klawiatura, zapowiedź i przycisk „Dalej” pozostają w Fazie 3.

@@ -49,7 +49,7 @@ Przed `dev`, `build` i `test` ikony generują się automatycznie.
 
 ## Tryb testowy
 
-Parametr `?test=1` (np. `http://localhost:5173/child-bath/?test=1`) pokazuje ramki i podpisy stref oraz przykładowe zdanie narracji i przycisk. Dziecko go nie widzi. Kolejne fazy dodadzą tu kolejne parametry testowe (`seed`, `ease`, `ritual`…), zob. [`planning/phases/README.md`](planning/phases/README.md).
+Parametr `?test=1` (np. `http://localhost:5173/child-bath/?test=1`) pokazuje ramki stref oraz przykładową narrację i przycisk. Tylko wtedy można ustawić `seed`, `ease` (`easy`, `normal`, `precise`) i `pace`. `?test=1&layer=apply` jest próbą nakładania warstwy; w zwykłej zabawie nadal są trzy kroki klasyczne. Wyniki weryfikacji: [`PHASE-02-SUMMARY.md`](planning/phases/PHASE-02-SUMMARY.md).
 
 ## Offline i PWA
 
@@ -79,7 +79,9 @@ Testy strażnicze z Fazy 1 sprawdzają:
 
 ## Wdrożenie
 
-PR i push na `main` uruchamiają jeden workflow: `.github/workflows/checks.yml`. PR przechodzi tylko typecheck, build i testy. Na `main` wdrożenie na GitHub Pages rusza dopiero, gdy te kroki się powiodą, i publikuje dokładnie ten `dist/`, który testował Playwright. Ręczne uruchomienie na `main` też przechodzi przez testy.
+PR i push na `main` uruchamiają jeden przebieg: `.github/workflows/checks.yml`. PR przechodzi tylko typecheck, build i testy. Na `main` zadanie `deploy` czeka na udane `checks`, a potem publikuje dokładnie ten `dist/`, który testował Playwright. Ręczne uruchomienie `Checks` na `main` również przechodzi przez testy.
+
+`.github/workflows/deploy.yml` jest wywoływany tylko przez `workflow_call`; nie uruchamia osobnego przebiegu po pushu. Przy synchronizacji plików trzeba **nadpisać ten plik na GitHubie**, ponieważ stara wersja zawierała drugi wyzwalacz `push`.
 
 Jednorazowo ustaw Settings → Pages → Source: **GitHub Actions**. Zadanie `checks` korzysta z `.github/actions/setup-project`: Node.js 22, `npm ci` z pamięcią podręczną npm i sprawdzenie osadzonych fontów. CI nie generuje lockfile'a ani nie pobiera fontów z CDN.
 

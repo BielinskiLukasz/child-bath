@@ -17,8 +17,8 @@ export interface Particle {
   kind: ParticleKind;
 }
 
-export function createPool(size: number = MAX_PARTICLES): Particle[] {
-  return Array.from({ length: size }, () => ({ age: -1, x: 0, y: 0, r: 0, dx: 0, kind: "bubble" as ParticleKind }));
+export function createPool(): Particle[] {
+  return Array.from({ length: MAX_PARTICLES }, () => ({ age: -1, x: 0, y: 0, r: 0, dx: 0, kind: "bubble" as ParticleKind }));
 }
 
 /** Zajmuje wolne miejsce w puli; gdy pula jest pełna, nic nie robi (najwyżej 28 węzłów). */
@@ -52,7 +52,9 @@ function smooth(t: number): number {
 
 /** Położenie i krycie żywej cząsteczki: bańki łagodnie się unoszą, krople opadają, obie powoli znikają. */
 export function particleView(particle: Particle): { x: number; y: number; opacity: number } {
-  const u = Math.min(1, Math.max(0, particle.age / TIMING.particleLife));
+  const age = Math.max(0, Math.min(TIMING.particleLife, particle.age));
+  const u = age / TIMING.particleLife;
   const lift = particle.kind === "drop" ? 0.22 * LH * u * u : -0.18 * LH * smooth(u);
-  return { x: particle.x + particle.dx * u, y: particle.y + lift, opacity: 0.8 * (1 - u * u) };
+  const fade = Math.min(1, age / TIMING.particleFade, (TIMING.particleLife - age) / TIMING.particleFade);
+  return { x: particle.x + particle.dx * u, y: particle.y + lift, opacity: 0.8 * smooth(fade) };
 }
