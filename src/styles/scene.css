@@ -1,0 +1,78 @@
+/* Szkic sceny z Fazy 1 (PlaceholderTub) do oceny proporcji stref. Zastąpią go scenerie z Fazy 6.
+   Kolory pochodzą z tokenów; czysta biel występuje tylko w drobnych błyskach na bańkach. */
+.placeholder-tub {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pt-wall {
+  fill: var(--paper);
+}
+
+.pt-tiles {
+  fill: var(--tile-b, #f5eedb);
+}
+
+.pt-tile {
+  fill: var(--tile-a, #a8bfaa);
+  fill-opacity: 0.55;
+}
+
+.pt-trim,
+.pt-rim,
+.pt-foam {
+  fill: var(--foam, #fffcf3);
+}
+
+.pt-foam--deep {
+  fill: var(--water-light);
+}
+
+.pt-towel {
+  fill: var(--towel-ochre);
+}
+
+.pt-towel-stripe {
+  fill: var(--towel-clay);
+}
+
+.pt-hook,
+.pt-foot {
+  fill: var(--wood-dark);
+}
+
+.pt-floor {
+  fill: var(--floor);
+}
+
+.pt-seam {
+  fill: none;
+  stroke: var(--wood);
+  stroke-opacity: 0.3;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.pt-shadow {
+  fill: var(--shadow-ink);
+  fill-opacity: 0.08;
+}
+
+.pt-water {
+  fill: var(--water, #a6c8c7);
+}
+
+.pt-body {
+  fill: var(--foam-shade);
+}
+
+.pt-body-shade {
+  fill: var(--tile-b, #f5eedb);
+}
+
+.pt-shine {
+  fill: #ffffff;
+}

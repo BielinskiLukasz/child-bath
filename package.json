@@ -1,0 +1,39 @@
+{
+  "name": "child-bath",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.app.ts",
+    "build": "vite build --config vite.app.ts",
+    "preview": "vite preview --config vite.app.ts",
+    "test": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "icons": "python3 tools/generate-icons.py",
+    "fonts": "python3 tools/build-fonts.py",
+    "predev": "npm run icons",
+    "prebuild": "npm run icons",
+    "pretest": "npm run icons"
+  },
+  "dependencies": {
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/vite": "4.1.17",
+    "@types/node": "22.19.17",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.1",
+    "tailwindcss": "4.1.17",
+    "typescript": "5.9.3",
+    "vite": "^7.3.7",
+    "vite-plugin-singlefile": "2.3.0"
+  },
+  "description": "Mała łazienka: spokojna, cicha zabawa w kąpanie zwierzątek dla małego dziecka (PWA po polsku).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.19"
+  }
+}

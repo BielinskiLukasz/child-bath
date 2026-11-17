@@ -1,0 +1,42 @@
+{
+  "id": "./",
+  "name": "Mała łazienka",
+  "short_name": "Łazienka",
+  "description": "Spokojna, cicha zabawa w kąpanie zwierzątek dla małego dziecka. Bez dźwięku, bez reklam, bez internetu.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone"],
+  "background_color": "#f6f3e8",
+  "theme_color": "#f6f3e8",
+  "orientation": "any",
+  "lang": "pl",
+  "dir": "ltr",
+  "categories": ["education", "kids"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/bath-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

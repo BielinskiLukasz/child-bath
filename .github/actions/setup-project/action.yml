@@ -1,0 +1,23 @@
+name: Prepare project
+description: Instaluje Node.js 22 i zależności z lockfile'a. Fonty są osadzone w repozytorium.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Verify embedded fonts
+      shell: bash
+      run: |
+        if ! grep -q 'data:font/woff2;base64,' src/fonts.css; then
+          echo '::error file=src/fonts.css::Brak osadzonych fontów. Uruchom npm run fonts i dołącz wynik do repozytorium.'
+          exit 1
+        fi

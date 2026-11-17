@@ -1,0 +1,45 @@
+/* Warianty układu (PHASE-01). Bazą jest telefon w pionie; niżej telefon w poziomie i szerokie ekrany. */
+
+/* Telefon (i mały tablet) w poziomie: niski ekran, więc pasy tekstu i strefa akcji są cieńsze. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .top-bar {
+    min-height: 40px;
+    padding-top: max(4px, env(safe-area-inset-top, 0px));
+    padding-bottom: 2px;
+  }
+
+  .app-title {
+    font-size: 1.2rem;
+  }
+
+  .narration {
+    min-height: calc(1.45em + 8px);
+    padding: 4px 24px;
+    font-size: 1rem;
+  }
+
+  .action {
+    min-height: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-top: 4px;
+  }
+}
+
+/* Laptop i duży tablet w poziomie. */
+@media (min-width: 900px) and (min-height: 561px) {
+  .top-bar {
+    min-height: 56px;
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+  }
+
+  .app-title {
+    font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+  }
+
+  .narration {
+    font-size: 1.125rem;
+  }
+
+  .action {
+    min-height: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}

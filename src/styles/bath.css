@@ -1,0 +1,117 @@
+/* Pudełko kąpieli (PHASE-02). Ruch tylko przez transform i opacity; bez filtrów, rozmyć i cieni. */
+.bath-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.bath-box {
+  position: relative;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: none;
+}
+
+.bath-box > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sketch-animal,
+.bath-layer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bath-animal {
+  pointer-events: none;
+}
+
+.bath-animal[data-reward] .sketch-animal {
+  transform-origin: 50% 90%;
+  animation: bath-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes bath-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.bath-particles {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.bath-particle--bubble {
+  fill: var(--foam, #fffcf3);
+  fill-opacity: 0.55;
+  stroke: var(--water-light);
+  stroke-width: 1.2;
+}
+
+.bath-particle--drop {
+  fill: var(--water, #a6c8c7);
+}
+
+/* Strumień wody w kroku spłukiwania: od góry pudełka do palca. */
+.bath-shower {
+  inset: auto;
+  left: 0;
+  top: 0;
+  height: 0;
+  border-radius: 0 0 999px 999px;
+  background: var(--water, #a6c8c7);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.bath-shower[data-visible="true"] {
+  opacity: 0.5;
+}
+
+.tool-cursor {
+  inset: auto;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  will-change: transform;
+}
+
+.tool-cursor svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tool-cursor[data-visible="true"] {
+  opacity: 0.92;
+}
+
+.bath-box:not([data-phase="scrubbing"]) .tool-cursor,
+.bath-box:not([data-phase="scrubbing"]) .bath-shower {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bath-animal[data-reward] .sketch-animal {
+    animation: none;
+  }
+}

@@ -1,0 +1,8 @@
+/* Źródło: child-train@b881e09:src/index.css (kolejność importów: Tailwind, fonty, tokeny, układ). */
+@import "tailwindcss" source("./");
+@import "./fonts.css";
+@import "./styles/tokens.css";
+@import "./styles/layout.css";
+@import "./styles/scene.css";
+@import "./styles/bath.css";
+@import "./styles/responsive.css";

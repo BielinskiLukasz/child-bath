@@ -1,42 +1,30 @@
 # PHASE-01: weryfikacja
 
-> **Metoda:** przegląd statyczny kodu w `child-bath/` względem zadań i kryteriów z [PHASE-01.md](PHASE-01.md). Uruchomienie npm, testów i przeglądarki nie było możliwe.
-> **Wynik:** kod Fazy 1 jest kompletny. Do zamknięcia fazy brakuje 4 kroków, które może wykonać tylko autor (sekcja „Braki”).
+**Wynik:** implementacja fundamentów przechodzi lokalną weryfikację automatyczną. GitHub Pages jest już włączone i publiczna wersja działa offline w Chromium. Faza pozostaje otwarta do zielonego przebiegu Checks dla tych poprawek i przeglądu na fizycznych telefonach.
 
-## Zadania planów
+## Wyniki automatyczne
 
-| Plan · zadanie | Stan | Dowód |
-|---|---|---|
-| 01-01.1 Konfiguracja z child-train | ✅ | `package.json` (te same wersje i skrypty), `vite.config.ts`, `tsconfig.json` (strict, `@/*`) |
-| 01-01.2 Punkt wejścia i strefy | ✅ | `index.html` (`lang="pl"`, `viewport-fit=cover`), `App.tsx` (4 strefy, ramki z `?test=1`) |
-| 01-01.3 Licencja i źródła | ✅ | `LICENSE` (MIT), `README.md`, `SOURCES.md`, komentarze źródła w 15 plikach |
-| 01-02.1 Tokeny i paleta | ✅ | `src/styles/tokens.css` |
-| 01-02.2 Fonty | ⚠️ narzędzie gotowe | `tools/build-fonts.py`; `src/fonts.css` jest zaślepką do czasu `npm run fonts` |
-| 01-02.3 Układ i ziarno papieru | ✅ | `layout.css`, `responsive.css` (`100dvh`, safe-area, ziarno 12%) |
-| 01-02.4 Szkic sceny | ✅ (czeka na akceptację autora) | `PlaceholderTub.tsx`, `scene.css` |
-| 01-02.5 Test układu | ✅ | `tests/e2e/layout.spec.ts` (3 rozdzielczości, ziarno, tryb testowy) |
-| 01-03.1 Manifest i ikony | ✅ | `public/manifest.json`, `icons/*.svg`, `tools/generate-icons.py` |
-| 01-03.2 Service worker | ✅ | `public/sw.js`, `src/pwa/registerServiceWorker.ts` |
-| 01-03.3 CI i wdrożenie | ⚠️ pliki gotowe | `checks.yml`, `deploy.yml`; wymagają `package-lock.json` i włączenia Pages |
-| 01-03.4 Testy strażnicze | ✅ | `pwa`, `offline-file`, `privacy`, `no-audio` + `sources` |
+- `npm ci`, `npm run typecheck` i `npm run build` przeszły w `child-bath`.
+- `CI=1 npm test`: **71 zaliczonych, 1 pominięty zgodnie z założeniem** (wielodotyk jest testowany w `phone` i `small`, nie w `desktop`). Bez błędów i bez powtórek.
+- [Publiczna aplikacja](https://bielinskilukasz.github.io/child-bath/) zwróciła poprawne odpowiedzi dla HTML, manifestu, service workera i ikon. Chromium z emulacją Pixel 7 nie zgłosił błędów instalowalności; w nowej karcie w trybie offline stronę zwrócił service worker.
 
-## Wymagania
+| Wymaganie | Co zostało potwierdzone |
+|---|---|
+| REQ-01 · pojedynczy HTML | Playwright otworzył sam `dist/index.html` z `file://`, bez plików obok i bez zewnętrznych żądań. Załadowały się DM Sans i Fraunces (także kursywa), podzbiory Latin i Latin Extended oraz teksty licencji. |
+| REQ-02 · PWA | Poprawny manifest i wymiary ikon, aktywowany service worker, HTML i zasoby z cache bez dostępu do sieci pod `/child-bath/`. |
+| REQ-03 · brak audio | Skan kodu i wydania nie znalazł API dźwięku, mediów, syntezy mowy ani wibracji. |
+| REQ-04 · prywatność | Testy nie wykryły zapytań poza urządzenie podczas otwarcia i interakcji. |
+| REQ-05 · polski | `lang="pl"`, właściwy tytuł, cztery strefy, ramki i przykładowa treść tylko z `?test=1`. |
+| REQ-06 · telefon | Brak przewijania przy 360 × 640, 640 × 360 i 1280 × 800; ziarno nie blokuje dotyku. Z emulowanymi wcięciami tytuł i próbny przycisk pozostają w bezpiecznej strefie. |
+| REQ-07 · źródła i MIT | Licencja, `SOURCES.md` i komentarze źródłowe, w tym pochodzenie osadzonych fontów. Test źródeł przeszedł. |
+| REQ-76 · CI i deploy | Jeden workflow Checks uruchamia `npm ci`, typecheck, build i Playwright. Zadanie `deploy` zależy od `checks` i publikuje tylko przetestowany `dist/` z `main`. Potwierdzenie przebiegu po publikacji zmian wymaga GitHub Actions. |
 
-| REQ | Stan | Uwagi |
-|---|---|---|
-| REQ-01 | ⚠️ | zaliczone po osadzeniu fontów; do tego czasu test `offline-file` celowo kończy się błędem |
-| REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07 | ✅ w kodzie | potwierdzi `npm test` |
-| REQ-76 | ⚠️ | CI ruszy po zatwierdzeniu `package-lock.json` |
+## Stan GitHub Actions i kroki do zamknięcia
 
-## Poprawki wprowadzone przy weryfikacji
+Dla wyjściowego `3cfe2b4`: [Deploy zakończył się sukcesem](https://github.com/BielinskiLukasz/child-bath/actions/runs/44087857917), a [Checks zatrzymał się w kroku Test](https://github.com/BielinskiLukasz/child-bath/actions/runs/44087858238). Poprawki ścieżki podglądu i testów zostały zweryfikowane lokalnie; nie publikowano zmian ani nie modyfikowano ustawień GitHub.
 
-- `tests/e2e/layout.spec.ts`: od Fazy 2 korzeń `.little-world` odzwierciedla fazę kąpieli, więc test akceptuje `boot`, `stage_in` i `scrubbing` zamiast samego `boot`.
-
-## Braki (tylko autor)
-
-1. `npm install`, potem zatwierdzenie `package-lock.json`.
-2. `npm run fonts` (albo `-- --from ../child-train-repo`), potem zatwierdzenie `src/fonts.css`.
-3. Skopiowanie `planning/` do `child-bath/` (README do niego linkuje).
-4. Pierwsze `npm run typecheck` i `npm test`, włączenie GitHub Pages, przegląd na telefonie (lista w PHASE-01, „Weryfikacja fazy”).
-
-Po tych krokach i zielonym CI odhacz plany 01-01–01-03 w `ROADMAP.md`.
+- [ ] Dołączyć poprawki (w tym `package-lock.json` i `src/fonts.css`) do PR; potwierdzić zielone Checks na GitHubie i wdrożenie po scaleniu.
+- [ ] Android Chrome: zainstalować z menu, uruchomić z ikony i otworzyć ponownie w trybie samolotowym.
+- [ ] iPhone Safari: dodać do ekranu początkowego, uruchomić z ikony i otworzyć ponownie w trybie samolotowym.
+- [ ] Na telefonach sprawdzić pion i poziom oraz zaakceptować proporcje sceny (`?test=1`).
+- [ ] Po weryfikacji odhaczyć plany 01-01–01-03 i Fazę 1 w ROADMAP.

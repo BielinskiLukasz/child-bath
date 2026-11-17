@@ -139,12 +139,12 @@ plans: [01-01, 01-02, 01-03]
      - port strategii network-first z child-train (cache `child-bath-v1`, precache powłoki, manifestu i ikon);
      - rejestracja tylko dla `https:` i `localhost`, nie dla `file:`.
    - Gotowe gdy: ponowne otwarcie bez sieci serwuje powłokę z cache.
-3. **CI i wdrożenie** · `.github/workflows/checks.yml`, `.github/workflows/deploy.yml`
+3. **CI i wdrożenie** · `.github/workflows/checks.yml`
    - Działanie:
-     - checks (PR i push): `npm ci`, `npx playwright install --with-deps chromium`, `npm run typecheck`, `npm run build`, `npm test`;
-     - deploy (push na `main`): build → `actions/upload-pages-artifact` (`dist`) → `actions/deploy-pages`;
+     - checks (PR, push na `main` lub ręczne uruchomienie): `npm ci`, `npx playwright install --with-deps chromium`, `npm run typecheck`, `npm run build`, `npm test` na gotowym `dist/`;
+     - po udanych testach na `main`: `actions/upload-pages-artifact` (sprawdzony `dist/`) → zależne zadanie `deploy` z `actions/deploy-pages`;
      - autor jednorazowo ustawia Pages → Source: GitHub Actions.
-   - Gotowe gdy: PR pokazuje zielone checks, a `main` publikuje stronę.
+   - Gotowe gdy: PR pokazuje wynik checks bez publikacji, a `main` wdraża tylko build, który przeszedł testy.
 4. **Testy strażnicze** · `playwright.config.ts`, `tests/e2e/pwa.spec.ts`, `tests/e2e/offline-file.spec.ts`, `tests/e2e/privacy.spec.ts`, `tests/unit/no-audio.spec.ts`
    - Działanie:
      - **PWA:** manifest, rejestracja SW na `preview`, ponowne otwarcie po `context.setOffline(true)`;
@@ -186,11 +186,6 @@ plans: [01-01, 01-02, 01-03]
 
 ## Stan implementacji
 
-- **Kod:** katalog `child-bath/` (plany 01-01, 01-02 i 01-03). Podsumowanie, odchylenia od planu i kroki dla autora: [PHASE-01-SUMMARY.md](PHASE-01-SUMMARY.md).
-- **Czeka na:**
-  - `npm install` i zatwierdzenie `package-lock.json`;
-  - osadzenie fontów (`npm run fonts`);
-  - pierwsze uruchomienie testów;
-  - włączenie GitHub Pages;
-  - przegląd na telefonie.
-- Do czasu tej weryfikacji plany zostają nieodhaczone w ROADMAP.
+- **Kod:** fundamenty, `package-lock.json` i osadzone fonty są gotowe. Istniejąca mechanika Fazy 2 pozostaje bez zmian.
+- **Weryfikacja:** [PHASE-01-VERIFICATION.md](PHASE-01-VERIFICATION.md) zawiera wyniki testów i stan GitHub Pages. Odchylenia techniczne opisuje [PHASE-01-SUMMARY.md](PHASE-01-SUMMARY.md).
+- **Do formalnego zamknięcia:** włączyć te poprawki do PR, potwierdzić zielone Checks i sprawdzić instalację, tryb samolotowy oraz proporcje sceny na fizycznym Androidzie i iPhonie. Do tego czasu w ROADMAP faza pozostaje otwarta.

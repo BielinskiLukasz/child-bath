@@ -1,0 +1,64 @@
+/* Źródło: child-train@b881e09:src/styles/tokens.css (ustawienia :root, kolory papieru i tuszu, klasa .sr-only).
+   Zmiany: kolory jako zmienne motywu (od Fazy 6 zmienia je silnik atmosfery) i tokeny łazienki. */
+:root {
+  /* Kolory bazowe z child-train. */
+  --paper: #f6f3e8;
+  --ink: #3f4d40;
+  --muted: #556c5a;
+  --accent: #9c7155;
+  --sky-top: #faf7ed;
+  --sky-bottom: #eaf0e1;
+  --selection: #dce1c8;
+  --shadow-ink: #3f4d40;
+
+  /* Tokeny łazienki: wartości robocze z palety child-train, ostateczne po przeglądzie stylu. */
+  --water: #a6c8c7;
+  --water-light: #c0d4cf;
+  --foam: #fffcf3;
+  --foam-shade: #f8f5e8;
+  --tile-a: #a8bfaa;
+  --tile-b: #f5eedb;
+  --floor: #ecdab2;
+  --wood: #b78268;
+  --wood-dark: #9c7155;
+  --towel-ochre: #dfbc70;
+  --towel-sage: #a5bbae;
+  --towel-clay: #d4a38c;
+  --lamp: #f7f2b5;
+  --lavender: #b9a9c9;
+  --berry: #8e6f8e;
+
+  /* Typografia: fonty osadza src/fonts.css, do tego czasu działają fonty systemowe. */
+  --font-ui: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background: var(--paper);
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--selection);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

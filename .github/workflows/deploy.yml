@@ -1,0 +1,42 @@
+# Źródło: child-train@b881e09:.github/workflows/deploy.yml (wdrożenie dist/ na GitHub Pages).
+# Zmiany: wspólne przygotowanie projektu (.github/actions/setup-project) z npm ci i kontrolą fontów.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Node.js, npm ci i kontrola fontów osadzonych w repozytorium.
+      - name: Prepare project
+        uses: ./.github/actions/setup-project
+      # prebuild generuje ikony PNG (Python 3 jest na ubuntu-latest).
+      - name: Build
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
