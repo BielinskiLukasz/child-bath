@@ -1,7 +1,7 @@
 ---
 phase: 03-sterowanie
 name: Sterowanie i przejścia
-status: not-started
+status: in-progress
 depends_on: [02-silnik-kapieli]
 requirements: [REQ-19, REQ-20, REQ-21, REQ-22, REQ-23, REQ-24, REQ-25]
 clarifications: [DP-1]
@@ -197,3 +197,7 @@ Gdy otwarty jest panel rodzica (od Fazy 10), Enter należy do panelu.
 - Faza 8 zastępuje zaślepkę `to_bench` ławeczką i pożegnaniem.
 - Faza 9 dodaje półeczkę w strefie akcji.
 - Faza 10 dodaje przełącznik trybu jednoprzyciskowego w panelu.
+
+## Stan implementacji
+
+Kod i automatyczne testy lokalne planów 03-01–03-03 są gotowe w głównym katalogu projektu. [Podsumowanie Fazy 3](PHASE-03-SUMMARY.md) zawiera wyniki testów, odchylenia od planu i ścieżki do zrzutów. Do zamknięcia pozostaje przebieg GitHub Actions i próba na fizycznych urządzeniach.

@@ -1,22 +1,23 @@
-import { CLASSIC_STEPS, isEaseKey, type EaseKey, type StepKind } from "../bath/steps";
+import { isEaseKey, type EaseKey, type StepKind } from "../bath/steps";
 import { MAX_SEED, randomSeed } from "../random";
+import { DEFAULT_BATH_SETTINGS, PACES, type BathPace } from "./defaults";
 import { isTestMode } from "./testMode";
 
 export interface SessionParams {
-  /** Ziarno sesji: kolejne zwierzątka i wzory warstw. */
   seed: number;
   ease: EaseKey;
-  /** Mnożnik czasów przejść (1,45 / 1,2 / 1 / 0,8). */
-  pace: number;
+  pace: BathPace;
   steps: readonly StepKind[];
+  oneButton: boolean;
 }
 
-const PACES = [1.45, 1.2, 1, 0.8];
 const APPLY_LAYER_TEST: readonly StepKind[] = ["lather"];
 
-/** Bez ?test=1 obowiązuje rytuał klasyczny. layer=apply włącza tylko próbę silnika nakładania. */
 export function readSessionParams(search: string = window.location.search): SessionParams {
-  const defaults: SessionParams = { seed: randomSeed(), ease: "normal", pace: 1, steps: CLASSIC_STEPS };
+  const settings = DEFAULT_BATH_SETTINGS;
+  const defaults: SessionParams = {
+    seed: randomSeed(), ease: settings.ease, pace: settings.pace, steps: settings.ritual.steps, oneButton: settings.oneButton,
+  };
   if (!isTestMode(search)) return defaults;
   const query = new URLSearchParams(search);
   const seed = Number(query.get("seed"));
@@ -25,7 +26,8 @@ export function readSessionParams(search: string = window.location.search): Sess
   return {
     seed: Number.isInteger(seed) && seed > 0 && seed <= MAX_SEED ? seed : defaults.seed,
     ease: isEaseKey(ease) ? ease : defaults.ease,
-    pace: PACES.includes(pace) ? pace : defaults.pace,
+    pace: PACES.find((value) => value === pace) ?? defaults.pace,
     steps: query.get("layer") === "apply" ? APPLY_LAYER_TEST : defaults.steps,
+    oneButton: query.get("oneButton") === "1",
   };
 }

@@ -58,6 +58,7 @@ export const ToolCursor = memo(function ToolCursor({ ref, tool, radius }: { ref:
         if (!cursor || !shower) return;
         cursor.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
         cursor.setAttribute("data-visible", "true");
+        cursor.setAttribute("data-keyboard", String(id === -1));
         if (pressed) {
           const scale = Math.max(0, Math.min(1, y / LH));
           shower.style.transform = `translateX(${x.toFixed(2)}px) scaleY(${scale})`;

@@ -3,6 +3,13 @@
  * Wartości przejść pochodzą z aktywności „Kąpiel Zwierzątek” w child-page (IN_S, REST_S, BUBBLE_S, SPAWN_GAP_S).
  */
 export const TIMING = {
+  arriving: 0.8,
+  toBench: 0.8,
+  autoStroke: 1.2,
+  /** Zatrzask wejścia nie zależy od ustawienia tempa. */
+  inputCooldown: 0.6,
+  invitationBreath: 5,
+  previewBreath: 4.2,
   /** Pojawienie się warstwy kroku. */
   stageIn: 0.7,
   /** Zanik reszty warstwy po osiągnięciu progu (przy ograniczonym ruchu: natychmiast). */

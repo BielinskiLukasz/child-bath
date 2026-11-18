@@ -1,45 +1,40 @@
-// Źródło: child-page@e7a19ac:js/kapiel.js (down/move/up: przechwycenie wskaźnika, wiele palców, współrzędne logiczne).
-// Zmiany: hook Reacta, zdarzenia scalone i osobne znaczniki narzędzia, bez stanu Reacta w obsłudze ruchu.
+// Źródło: child-page@e7a19ac:js/kapiel.js (down/move/up: pointer capture, wielodotyk, współrzędne logiczne).
+// Zmiany: zdarzenia scalone, osobne znaczniki i wygaszanie gestu po zmianie fazy lub układu.
 import { useEffect, useRef, type RefObject } from "react";
 import { LH, LW } from "../bath/coverage";
 
 type PointerPosition = { x: number; y: number; left: number; top: number; width: number; height: number };
 
 export interface ScrubCallbacks {
+  canStart(): boolean;
   onSegment(x0: number, y0: number, x1: number, y1: number): void;
   onPointer(id: number, x: number, y: number, pressed: boolean): void;
   onPointerEnd(id: number): void;
   onReset(): void;
 }
 
-/** Przelicza ruch na odcinki w przestrzeni 256 × 336. Każdy wskaźnik ma własny stan. */
-export function useScrub(target: RefObject<HTMLElement | null>, callbacks: ScrubCallbacks): void {
+export function useScrub(target: RefObject<HTMLElement | null>, callbacks: ScrubCallbacks, enabled: boolean): void {
   const callbacksRef = useRef(callbacks);
-  useEffect(() => {
-    callbacksRef.current = callbacks;
-  });
+  useEffect(() => { callbacksRef.current = callbacks; });
 
   useEffect(() => {
     const element = target.current;
-    if (!element) return;
+    if (!element || !enabled) return;
     const pointers = new Map<number, PointerPosition>();
     const logicalX = (event: PointerEvent, rect: DOMRect) => (event.clientX - rect.left) * LW / rect.width;
     const logicalY = (event: PointerEvent, rect: DOMRect) => (event.clientY - rect.top) * LH / rect.height;
 
     const down = (event: PointerEvent) => {
-      if (document.hidden || (event.pointerType === "mouse" && event.button !== 0)) return;
+      const cb = callbacksRef.current;
+      if (document.hidden || !cb.canStart() || (event.pointerType === "mouse" && event.button !== 0)) return;
       const rect = element.getBoundingClientRect();
       if (!(rect.width > 0 && rect.height > 0)) return;
       const x = logicalX(event, rect);
       const y = logicalY(event, rect);
       pointers.set(event.pointerId, { x, y, left: rect.left, top: rect.top, width: rect.width, height: rect.height });
-      try {
-        element.setPointerCapture(event.pointerId);
-      } catch {
-        // Syntetyczne wskaźniki nie zawsze pozwalają na przechwycenie.
-      }
-      callbacksRef.current.onSegment(x, y, x, y);
-      callbacksRef.current.onPointer(event.pointerId, x, y, true);
+      try { element.setPointerCapture(event.pointerId); } catch { /* Syntetyczny wskaźnik może nie mieć capture. */ }
+      cb.onSegment(x, y, x, y);
+      cb.onPointer(event.pointerId, x, y, true);
       event.preventDefault();
     };
 
@@ -47,14 +42,13 @@ export function useScrub(target: RefObject<HTMLElement | null>, callbacks: Scrub
       if (document.hidden) return;
       const previous = pointers.get(event.pointerId);
       if (!previous && event.pointerType !== "mouse") return;
-      const rect = element.getBoundingClientRect(); // Jeden odczyt również dla całej paczki getCoalescedEvents().
+      const rect = element.getBoundingClientRect();
       if (!(rect.width > 0 && rect.height > 0)) return;
       const x = logicalX(event, rect);
       const y = logicalY(event, rect);
       const cb = callbacksRef.current;
       if (previous) {
         if (previous.left !== rect.left || previous.top !== rect.top || previous.width !== rect.width || previous.height !== rect.height) {
-          // Nie łączymy odcinkiem punktów ze starego i nowego układu, np. po obrocie telefonu.
           cb.onSegment(x, y, x, y);
         } else {
           let lastX = previous.x;
@@ -104,9 +98,7 @@ export function useScrub(target: RefObject<HTMLElement | null>, callbacks: Scrub
       }
       callbacksRef.current.onReset();
     };
-    const onVisibility = () => {
-      if (document.hidden) clear();
-    };
+    const onVisibility = () => { if (document.hidden) clear(); };
 
     element.addEventListener("pointerdown", down);
     element.addEventListener("pointermove", move);
@@ -127,5 +119,5 @@ export function useScrub(target: RefObject<HTMLElement | null>, callbacks: Scrub
       window.removeEventListener("resize", clear);
       clear();
     };
-  }, [target]);
+  }, [target, enabled]);
 }

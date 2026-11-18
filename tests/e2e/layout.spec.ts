@@ -24,8 +24,8 @@ test("dokument jest po polsku, ma tytuł z imieniem w dopełniaczu i działa bez
   await expect(page.locator("html")).toHaveAttribute("lang", "pl");
   await expect(page).toHaveTitle("Mała łazienka dziecka");
   await expect(page.locator("h1")).toHaveText("Mała łazienka dziecka");
-  // Od Fazy 2 korzeń odzwierciedla fazę kąpieli (na starcie „boot”, potem „stage_in”, „scrubbing”…).
-  await expect(page.locator(".little-world")).toHaveAttribute("data-phase", /^(boot|stage_in|scrubbing)$/);
+  // Od Fazy 3 pierwsze zwierzątko czeka na zaproszenie.
+  await expect(page.locator(".little-world")).toHaveAttribute("data-phase", "door_waiting");
   expect(errors).toEqual([]);
 });
 
@@ -88,7 +88,7 @@ test("wycięcie ekranu i pasek systemowy nie zasłaniają tytułu ani przycisku"
 
     const action = page.locator("#action");
     const title = page.locator("h1");
-    const button = action.locator(".zone-sample--button");
+    const button = action.getByRole("button", { name: "Dalej", exact: true });
     await expect(action).toHaveCSS("padding-bottom", `${insets.bottom}px`);
     await expect(page.locator(".little-world")).toHaveCSS("padding-left", `${insets.left}px`);
     await expect(button).toBeVisible();
@@ -126,5 +126,6 @@ test("ramki i przykładowa treść stref są widoczne tylko w trybie testowym", 
 
   await page.goto("./?test=1");
   await expect(page.locator(".little-world")).toHaveAttribute("data-test-frames", "true");
-  await expect(page.locator(".zone-sample")).toHaveCount(2);
+  await expect(page.locator(".zone-sample")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Dalej", exact: true })).toHaveCount(1);
 });

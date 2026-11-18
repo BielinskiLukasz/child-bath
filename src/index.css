@@ -5,4 +5,6 @@
 @import "./styles/layout.css";
 @import "./styles/scene.css";
 @import "./styles/bath.css";
+@import "./styles/controls.css";
+@import "./styles/animations.css";
 @import "./styles/responsive.css";

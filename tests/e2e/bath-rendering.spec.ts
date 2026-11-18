@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { insideMask } from "../../src/animals/sketch";
 import { createGrid, LH, LW, progress, stampSegment } from "../../src/bath/coverage";
 import { brushRadius, STEPS } from "../../src/bath/steps";
+import { openBath } from "../helpers/bath";
 
 const BOX = ".bath-box";
 const STAGE = ".bath-stage";
@@ -21,7 +22,7 @@ async function layerAlpha(page: Page) {
 for (const mode of ["erase", "apply"] as const) {
   test(`znany gest ${mode === "erase" ? "zmywa" : "nakłada"} warstwę dokładnie pod narzędziem`, async ({ page }) => {
     const step = mode === "erase" ? STEPS.scrub : STEPS.lather;
-    await page.goto(`./?test=1&seed=7&layer=${mode}`);
+    await openBath(page, `./?test=1&seed=7&layer=${mode}`);
     const stage = page.locator(STAGE);
     await expect(stage).toHaveAttribute("data-step", step.kind);
     await expect(stage).toHaveAttribute("data-phase", "scrubbing");

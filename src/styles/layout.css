@@ -122,7 +122,7 @@ body {
   padding: 8px 16px env(safe-area-inset-bottom, 0px);
 }
 
-/* Tryb testowy (?test=1): ramki i podpisy stref oraz przykładowa treść do oceny proporcji. */
+/* Tryb testowy (?test=1): ramki stref i przykładowe zdanie narracji. */
 .little-world[data-test-frames] > [data-zone] {
   outline: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
   outline-offset: -3px;

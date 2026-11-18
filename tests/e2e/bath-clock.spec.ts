@@ -10,9 +10,11 @@ test("ukrycie karty zamraża zanik reszty, a wznowienie nie przeskakuje czasu", 
   const box = page.locator(".bath-box");
   const layer = page.locator(".bath-layer");
   await expect(box).toBeVisible();
+  await page.keyboard.press("Enter");
   // rAF jest zegarem gry; czas w tym teście płynie tylko przy runFor.
-  await page.clock.runFor(800);
+  await page.clock.runFor(2400);
   await expect(stage).toHaveAttribute("data-phase", "scrubbing");
+  await expect(page.locator(".little-world")).toHaveAttribute("data-input-ready", "true");
 
   // Wysyłamy gęsty zygzak w jednym obrocie kolejki, żeby obserwować początek stage_rest.
   await box.evaluate((element) => {

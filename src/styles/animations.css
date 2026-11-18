@@ -1,0 +1,29 @@
+/* Zegar gry steruje ruchem między fazami; CSS tylko zaproszeniem i spokojnym oddechem. */
+@keyframes bath-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@keyframes bath-invitation {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035, 1.055); }
+}
+@keyframes bath-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.little-world[data-paused="true"] :is(.door-preview-animal .sketch-animal, .door-preview-animal__fade, .bath-animal .sketch-animal),
+.little-world[data-paused="true"] .action,
+.little-world[data-paused="true"] .bath-control::before {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .door-preview-animal[data-waiting] .sketch-animal,
+  .door-preview-animal__fade,
+  .action,
+  .bath-animal[data-reward] .sketch-animal,
+  .bath-control[aria-disabled="false"]::before {
+    animation: none;
+  }
+}

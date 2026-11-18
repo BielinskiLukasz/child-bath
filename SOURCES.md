@@ -41,6 +41,9 @@ Każdy plik przeniesiony w całości lub w części z innego repozytorium ma na 
 | `src/animals/sketch.ts` | child-page `js/kapiel.js` (viewBox, skala maski) i `js/animals.js` (sylwetka misia) | geometria jako dane: SVG, `Path2D` i maska siatki z jednego opisu |
 | `src/hooks/useBathClock.ts` | child-page `js/kapiel.js` (`frame`, `start`, `onVis`) | hook Reacta; `tick` zwraca, czy coś trwa, `wake()` budzi pętlę |
 | `src/hooks/useScrub.ts` | child-page `js/kapiel.js` (`down`, `move`, `up`, `toLogical`) | hook Reacta, zdarzenia scalone, kursor myszy bez wciśnięcia |
+| `src/input/keyboardBrush.ts` | child-page `js/kapiel.js` (`brushTo`, `onKey`) | czysta obsługa strzałek i zygzaka w logicznych współrzędnych |
+| `src/components/NextButton.tsx` | child-train `src/App.tsx` (prawdziwy przycisk z `aria-disabled`) | „Dalej” dla zwierzątka czekającego na kąpiel |
+| `src/components/OneButtonKey.tsx` | child-train `src/App.tsx` (Enter, Dotknij/Naciśnij) | wspólny klawisz zapowiedzi i jednego ruchu |
 | `src/components/BathStage.tsx` | child-page `js/kapiel.js` (`layout`, `maybeSpawn`) | React, siatka pokrycia zamiast `getImageData`, jawny reducer faz |
 
 ## Pliki generowane

@@ -4,7 +4,7 @@ import { particleView, type Particle } from "../bath/particles";
 import { MAX_PARTICLES } from "../timing";
 
 export interface ParticlesHandle {
-  render(pool: readonly Particle[]): void;
+  render(pool: readonly Particle[], reduced?: boolean): void;
 }
 
 /** Pula 28 kółek SVG. Po zainicjowaniu cząsteczki animujemy tylko transform i opacity. */
@@ -14,7 +14,7 @@ export const Particles = memo(function Particles({ ref }: { ref: Ref<ParticlesHa
   const radii = useRef<number[]>([]);
 
   useImperativeHandle(ref, () => ({
-    render(pool: readonly Particle[]) {
+    render(pool: readonly Particle[], reduced = false) {
       pool.forEach((particle, index) => {
         const node = nodes.current[index];
         if (!node) return;
@@ -30,7 +30,7 @@ export const Particles = memo(function Particles({ ref }: { ref: Ref<ParticlesHa
           variants.current[index] = particle.kind;
           node.setAttribute("class", `bath-particle bath-particle--${particle.kind}`);
         }
-        const view = particleView(particle);
+        const view = particleView(particle, reduced);
         node.style.transform = `translate(${view.x.toFixed(1)}px, ${view.y.toFixed(1)}px)`;
         node.style.opacity = view.opacity.toFixed(3);
       });

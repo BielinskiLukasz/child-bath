@@ -1,15 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
+import { openBath, waitForWashing } from "../helpers/bath";
 
 const STAGE = ".bath-stage";
 const BOX = ".bath-box";
-
-async function waitPhase(page: Page, phase: string) {
-  await expect(page.locator(STAGE)).toHaveAttribute("data-phase", phase, { timeout: 15_000 });
-}
-
-async function progressOf(page: Page): Promise<number> {
-  return Number(await page.locator(STAGE).getAttribute("data-progress"));
-}
+const progressOf = async (page: Page) => Number(await page.locator(STAGE).getAttribute("data-progress"));
 
 async function boxOf(page: Page) {
   const box = await page.locator(BOX).boundingBox();
@@ -17,7 +11,6 @@ async function boxOf(page: Page) {
   return box;
 }
 
-/** Zygzak myszą przez bieżący krok, bez pocierania podczas przejścia do następnego. */
 async function scrubWithMouse(page: Page) {
   const stage = page.locator(STAGE);
   const step = await stage.getAttribute("data-step");
@@ -42,23 +35,24 @@ async function scrubWithMouse(page: Page) {
   }
 }
 
-/** Poziome pociągnięcie jednym albo dwoma palcami naraz (CDP, Chromium). */
 async function strokeWithFingers(page: Page, fingers: 1 | 2): Promise<number> {
-  await page.goto("./?test=1&seed=3");
-  await waitPhase(page, "scrubbing");
+  await openBath(page, "./?test=1&seed=3");
   const box = await boxOf(page);
   const ys = [0.55, 0.75].slice(0, fingers).map((fraction) => box.y + box.height * fraction);
   const x0 = box.x + box.width * 0.25;
   const x1 = box.x + box.width * 0.75;
   const points = (x: number) => ys.map((y, id) => ({ x, y, id }));
   const cdp = await page.context().newCDPSession(page);
+  const active = page.locator(".tool-cursor[data-visible='true']");
   await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: points(x0) });
+  await expect(active).toHaveCount(fingers);
   for (let stepIndex = 1; stepIndex <= 12; stepIndex++) {
     await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: points(x0 + ((x1 - x0) * stepIndex) / 12) });
   }
   await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await expect(active).toHaveCount(0);
+  await cdp.detach();
   await expect.poll(() => progressOf(page)).toBeGreaterThan(0);
-  await page.waitForTimeout(200);
   return progressOf(page);
 }
 
@@ -70,16 +64,16 @@ async function setHidden(page: Page, hidden: boolean) {
   }, hidden);
 }
 
-test("pocieranie myszą przechodzi trzy kroki, a potem pojawia się nowe zwierzątko", async ({ page }) => {
+test("pocieranie myszą przechodzi trzy kroki, a potem kolejne zwierzątko czeka na Dalej", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("./?test=1&seed=7&ease=easy");
+  await openBath(page, "./?test=1&seed=7&ease=easy");
   const stage = page.locator(STAGE);
   await expect(stage).toHaveAttribute("data-animal", "sketch-1");
 
   for (const step of ["scrub", "rinse", "dry"]) {
     await expect(stage).toHaveAttribute("data-step", step, { timeout: 15_000 });
-    await waitPhase(page, "scrubbing");
+    await waitForWashing(page);
     await expect(page.locator(".bath-particle")).toHaveCount(28);
     if (step === "rinse") {
       const box = await boxOf(page);
@@ -103,11 +97,9 @@ test("pocieranie myszą przechodzi trzy kroki, a potem pojawia się nowe zwierz�
     await scrubWithMouse(page);
   }
 
-  // Następny data-step (lub data-animal po ostatnim) dowodzi domknięcia kroku nawet
-  // wtedy, gdy przeglądarka zdążyła już wejść w kolejną fazę „scrubbing”.
   await expect(stage).toHaveAttribute("data-animal", "sketch-2", { timeout: 15_000 });
   await expect(stage).toHaveAttribute("data-step", "scrub");
-  await expect(page.locator(".little-world")).toHaveAttribute("data-phase", /^(stage_in|scrubbing)$/);
+  await expect(stage).toHaveAttribute("data-phase", "door_waiting");
   expect(errors).toEqual([]);
 });
 
@@ -119,8 +111,7 @@ test("dwa palce naraz myją szybciej niż jeden", async ({ page }, testInfo) => 
 });
 
 test("obrót podczas pocierania nie zmienia postępu i nie rysuje przypadkowego odcinka", async ({ page }) => {
-  await page.goto("./?test=1&seed=5");
-  await waitPhase(page, "scrubbing");
+  await openBath(page, "./?test=1&seed=5");
   const box = await boxOf(page);
   await page.mouse.move(box.x + box.width * 0.25, box.y + box.height * 0.6);
   await page.mouse.down();
@@ -131,30 +122,30 @@ test("obrót podczas pocierania nie zmienia postępu i nie rysuje przypadkowego 
     const layer = page.locator(".bath-layer");
     const bitmap = () => layer.evaluate((element) => (element as HTMLCanvasElement).toDataURL());
     const beforeImage = await bitmap();
-
     const viewport = page.viewportSize();
     if (!viewport) throw new Error("Brak rozmiaru okna.");
     await page.setViewportSize({ width: viewport.height, height: viewport.width });
     await expect.poll(async () => (await boxOf(page)).height).not.toBe(box.height);
     await expect(page.locator(".tool-cursor[data-visible='true']")).toHaveCount(0);
     const rotated = await boxOf(page);
-    // Wskaźnik jest wciąż wciśnięty, ale stary gest został wyczyszczony przez obrót.
     await page.mouse.move(rotated.x + rotated.width / 2, rotated.y + rotated.height * 0.25);
     expect(await progressOf(page)).toBe(before);
-    expect(await bitmap() === beforeImage, "Obrót i ruch bez nowego nacisku nie przemalowują canvasu").toBe(true);
+    expect(await bitmap() === beforeImage, "Obrót bez nowego nacisku nie przemalowuje canvasu").toBe(true);
     await expect(page.locator(STAGE)).toHaveAttribute("data-phase", "scrubbing");
   } finally {
     await page.mouse.up();
   }
 });
 
-test("ukryta karta wstrzymuje przejście, a po powrocie zabawa toczy się dalej", async ({ page }) => {
+test("ukryta karta wstrzymuje wejście, a po powrocie kąpiel toczy się dalej", async ({ page }) => {
   await page.goto("./?test=1&seed=9&pace=1.45");
+  await page.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(page.locator(STAGE)).toHaveAttribute("data-phase", "arriving");
   await setHidden(page, true);
   await page.waitForTimeout(1600);
-  await expect(page.locator(STAGE)).toHaveAttribute("data-phase", "stage_in");
+  await expect(page.locator(STAGE)).toHaveAttribute("data-phase", "arriving");
   await setHidden(page, false);
-  await waitPhase(page, "scrubbing");
+  await waitForWashing(page);
 });
 
 test("kąpiel nie wysyła zapytań poza urządzenie", async ({ context, page }) => {
@@ -163,9 +154,8 @@ test("kąpiel nie wysyła zapytań poza urządzenie", async ({ context, page }) 
     const url = new URL(request.url());
     if (!["data:", "blob:", "about:"].includes(url.protocol) && url.hostname !== "localhost") external.push(request.url());
   });
-  await page.goto("./?test=1&seed=11&ease=easy");
-  await waitPhase(page, "scrubbing");
+  await openBath(page, "./?test=1&seed=11&ease=easy");
   await scrubWithMouse(page);
-  await expect(page.locator(STAGE)).not.toHaveAttribute("data-phase", "scrubbing", { timeout: 15_000 });
+  await expect(page.locator(STAGE)).toHaveAttribute("data-step", "rinse");
   expect(external).toEqual([]);
 });

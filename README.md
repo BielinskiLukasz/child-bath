@@ -4,7 +4,7 @@ Spokojna, cicha aplikacja PWA po polsku dla małego dziecka. Dziecko kąpie zwie
 
 Aplikacja powstaje najpierw z myślą o telefonie. Działa offline, bez dźwięku, reklam i wysyłania danych. Styl i rozwiązania techniczne pochodzą z [child-train](https://github.com/BielinskiLukasz/child-train), a mechanika kąpieli z aktywności „Kąpiel Zwierzątek” w [child-page](https://github.com/BielinskiLukasz/child-page).
 
-> **Stan: Faza 2 z 12 (silnik kąpieli).** Na scenie jest zwierzątko-szkic, które można wykąpać pocieraniem w trzech krokach (brud, piana, wilgoć); kroki domykają się same, a potem pojawia się kolejne zwierzątko. Parametry testowe: `?test=1&seed=7&ease=easy&pace=1.45`. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), plany faz: [`planning/phases/`](planning/phases/README.md).
+> **Stan: Faza 3 z 12 (sterowanie i przejścia).** Każde zwierzątko czeka na „Dalej” lub Enter. Trzy kroki można przejść dotykiem, myszą lub klawiaturą. Tryb jednoprzyciskowy do przeglądu: `?test=1&oneButton=1`. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 3](planning/phases/PHASE-03-SUMMARY.md).
 
 ## Zasady
 
@@ -47,9 +47,15 @@ Główny katalog to projekt `child-bath`, a jego plany są w `planning/`. Jeśli
 
 Przed `dev`, `build` i `test` ikony generują się automatycznie.
 
+## Sterowanie
+
+- **Dotyk lub mysz:** wybierz „Dalej” i pocieraj zwierzątko po pojawieniu się warstwy.
+- **Klawiatura:** uruchom kąpiel Enterem. Gdy zwierzątko wejdzie, ustaw fokus na pudełku klawiszem Tab (lub Shift+Tab z przycisku „Dalej”). Strzałki przesuwają narzędzie; Spacja i Enter prowadzą zygzakiem.
+- **Jeden przycisk:** dodaj `?test=1&oneButton=1`. Pierwsze naciśnięcie Entera lub dotknięcie przycisku rozpoczyna kąpiel; każde następne uruchamia jeden pas. Przytrzymanie i naciśnięcia w trakcie ruchu nie są kolejkowane.
+
 ## Tryb testowy
 
-Parametr `?test=1` (np. `http://localhost:5173/child-bath/?test=1`) pokazuje ramki stref oraz przykładową narrację i przycisk. Tylko wtedy można ustawić `seed`, `ease` (`easy`, `normal`, `precise`) i `pace`. `?test=1&layer=apply` jest próbą nakładania warstwy; w zwykłej zabawie nadal są trzy kroki klasyczne. Wyniki weryfikacji: [`PHASE-02-SUMMARY.md`](planning/phases/PHASE-02-SUMMARY.md).
+Parametr `?test=1` pokazuje ramki stref oraz przykładową narrację. Tylko wtedy można nadpisać `seed`, `ease` (`easy`, `normal`, `precise`), `pace` i `oneButton`. `?test=1&layer=apply` uruchamia próbę nakładania warstwy; w zwykłej zabawie nadal są trzy kroki klasyczne. [Wyniki Fazy 3](planning/phases/PHASE-03-SUMMARY.md).
 
 ## Offline i PWA
 
