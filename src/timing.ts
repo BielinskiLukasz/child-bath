@@ -16,11 +16,9 @@ export const TIMING = {
   stageRest: 0.5,
   /** Zaślepka nagrody z Fazy 2 (pełna nagroda powstaje w Fazie 8). */
   reward: 2,
-  /** Zanik zwierzątka na końcu nagrody i jego pojawienie się na początku kąpieli. */
-  animalFade: 0.7,
   /** Pojawienie się i zanik narzędzia po dotyku lub najechaniu. */
   toolFade: 0.5,
-  rewardBreath: 2.4,
+  minReaction: 1.2,
   /** Życie bańki lub kropli i łagodny początek/koniec (także przy tempie 0,8). */
   particleLife: 1.6,
   particleFade: 0.65,

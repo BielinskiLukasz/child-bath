@@ -12,18 +12,69 @@
   to { opacity: 1; }
 }
 
-.little-world[data-paused="true"] :is(.door-preview-animal .sketch-animal, .door-preview-animal__fade, .bath-animal .sketch-animal),
+.little-world[data-paused="true"] :is(.door-preview-animal .animal-svg, .door-preview-animal__fade, .bath-animal__reward),
 .little-world[data-paused="true"] .action,
 .little-world[data-paused="true"] .bath-control::before {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .door-preview-animal[data-waiting] .sketch-animal,
+  .door-preview-animal[data-waiting] .animal-svg,
   .door-preview-animal__fade,
   .action,
-  .bath-animal[data-reward] .sketch-animal,
   .bath-control[aria-disabled="false"]::before {
     animation: none;
   }
+}
+
+/* One finite action per character. Nested SVG groups separate the pivots from the data matrices. */
+.animal-figure[data-reaction="fluff"] .animal-fluff { animation-name: animal-fluff; }
+.animal-figure[data-reaction="ruffle"] .animal-feathers { animation-name: animal-ruffle; }
+.animal-figure[data-reaction="tailWag"] [data-part="tail"] { animation-name: animal-tail; transform-origin: 64% 88%; }
+.animal-figure[data-reaction="stretch"] [data-part="body"] { animation-name: animal-stretch; }
+.animal-figure[data-reaction="pawSplash"] [data-motion="paw"] { animation-name: animal-splash-paw; }
+.animal-figure[data-reaction="wingFan"] [data-part="arm"] { animation-name: animal-wing; }
+.animal-figure[data-reaction="wingFan"] [data-motion="paw"] { animation-name: animal-wing-right; }
+.animal-figure[data-reaction="armWave"] [data-motion="paw"] { animation-name: animal-wave; }
+.animal-figure[data-reaction="shake"] { animation-name: animal-shake; }
+.animal-yawn { animation-name: animal-yawn; }
+.animal-reaction-shine { animation-name: animal-shine; }
+.animal-splash { animation-name: animal-splash; }
+.animal-eyes-closed, .animal-expression { animation-name: animal-face-in; }
+.animal-figure:is([data-reaction="squint"], [data-reaction="smileClosed"]) .animal-eyes-open { animation-name: animal-face-out; }
+
+.animal-figure[data-reaction], .animal-figure[data-reaction] :is(
+  .animal-fluff, .animal-feathers, [data-part="tail"], [data-part="body"], [data-part="arm"],
+  .animal-yawn, .animal-reaction-shine, .animal-splash, .animal-eyes-open, .animal-eyes-closed, .animal-expression
+) {
+  animation-duration: var(--animal-reaction-time);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+.animal-figure { transform-origin: 50% 93%; }
+.animal-fluff, .animal-feathers, .animal-yawn, .animal-figure [data-part="body"] { transform-box: fill-box; transform-origin: 50% 85%; }
+.animal-figure [data-part="arm"]:not([data-motion]) { transform-origin: 34% 69%; }
+.animal-figure [data-motion="paw"] { transform-origin: 69% 71%; }
+.animal-figure:not([data-finished]) { --coat-reaction-rest: 0; }
+[data-paused="true"] .animal-figure, [data-paused="true"] .animal-figure * { animation-play-state: paused; }
+
+@keyframes animal-fluff { 0%, 100% { opacity: var(--coat-reaction-rest, 1); transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes animal-ruffle { 0%, 100% { opacity: var(--coat-reaction-rest, 1); transform: translateY(0); } 50% { opacity: 1; transform: translateY(-1.1px) scaleY(1.1); } }
+@keyframes animal-tail { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(12deg); } 70% { transform: rotate(-12deg); } }
+@keyframes animal-face-in { 0%, 100% { opacity: 0; } 43%, 57% { opacity: 1; } }
+@keyframes animal-face-out { 0%, 100% { opacity: 1; } 43%, 57% { opacity: 0; } }
+@keyframes animal-yawn { 0%, 100% { opacity: 0; transform: scaleY(0.25); } 50% { opacity: 1; transform: scaleY(1); } }
+@keyframes animal-stretch { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.04); } }
+@keyframes animal-splash-paw { 0%, 100% { transform: rotate(0); } 47% { transform: rotate(-10deg); } }
+@keyframes animal-splash { 0%, 100% { opacity: 0; transform: translateY(0); } 50% { opacity: 0.75; transform: translateY(-2px); } }
+@keyframes animal-wing { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(8deg); } }
+@keyframes animal-wing-right { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg); } }
+@keyframes animal-shine { 0%, 100% { opacity: 0; transform: translateX(-1px); } 50% { opacity: 0.8; transform: translateX(2px); } }
+@keyframes animal-shake { 0%, 100% { transform: rotate(0); } 16%, 50%, 83% { transform: rotate(-4deg); } 33%, 67% { transform: rotate(4deg); } }
+@keyframes animal-wave { 0%, 100% { transform: rotate(0); } 33% { transform: rotate(-11deg); } 67% { transform: rotate(7deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .animal-figure[data-reaction]:not([data-reaction="squint"], [data-reaction="smileClosed"]),
+  .animal-figure[data-reaction]:not([data-reaction="squint"], [data-reaction="smileClosed"]) * { animation-name: none; }
 }

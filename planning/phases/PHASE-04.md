@@ -1,7 +1,7 @@
 ---
 phase: 04-postacie
 name: Postacie
-status: not-started
+status: in-progress
 depends_on: [02-silnik-kapieli]
 requirements: [REQ-29, REQ-33, REQ-34, REQ-35, REQ-36, REQ-37, REQ-38]
 clarifications: [DP-2, DP-4]
@@ -216,7 +216,7 @@ Przy ograniczonym ruchu zostają tylko zmiany wyrazu twarzy (`squint`, `smileClo
 
 | # | Kryterium (ROADMAP) | Jak sprawdzamy |
 |---|---|---|
-| 1 | 20 zwierzątek do wykąpania, maska zgodna z rysunkiem | `animal-mask.spec.ts`, kąpiel w `bath.spec.ts` dla każdego id |
+| 1 | 20 zwierzątek do wykąpania, maska zgodna z rysunkiem | `animal-mask.spec.ts`, `animals-bath.spec.ts` dla każdego id |
 | 2 | Wygląd po kąpieli wg okrywy, szalik, szlafrok i turban | galeria + przegląd |
 | 3 | Żabka i Labrador ≥ 3 reakcje, każda ≥ 1,2 s | `reactions.spec.ts`, `traits` |
 | 4 | Odmiana i rodzaj dla 20 zwierzątek | `names.spec.ts` |
@@ -232,3 +232,7 @@ Przy ograniczonym ruchu zostają tylko zmiany wyrazu twarzy (`squint`, `smileClo
 - Faza 5 dopisuje gatunki według tego samego wzoru (lista kontrolna nowego zwierzątka w PHASE-05).
 - Faza 7 używa `names.ts` (narracja) i `okrywa` (krok 5).
 - Faza 8 rysuje ozdoby na kotwicach i korzysta z macierzy zgodności.
+
+## Stan implementacji
+
+Kod planów 04-01–04-04 znajduje się w głównym katalogu. [Podsumowanie Fazy 4](PHASE-04-SUMMARY.md) zawiera pokrycie wymagań, wyniki i ścieżki do zrzutów. Do formalnego zamknięcia pozostaje zielony przebieg GitHub Actions dla tych zmian i akceptacja autora po przeglądzie galerii i odmiany.

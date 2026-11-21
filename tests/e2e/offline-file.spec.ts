@@ -57,6 +57,14 @@ test("dist/index.html działa z dysku bez sieci, z osadzonymi fontami i ich lice
   expect(fonts.uiReady).toBe(true);
   expect(fonts.displayReady).toBe(true);
 
+  const gallery = pathToFileURL(standalone);
+  gallery.search = "test=1&gallery=animals";
+  await page.goto(gallery.href);
+  await expect(page.locator("[data-gallery-animal]")).toHaveCount(20);
+  await page.locator('[data-gallery-animal="elephant"]').click();
+  await page.getByRole("link", { name: /Wykąp Słonia/ }).click();
+  await expect(page.locator(".bath-stage")).toHaveAttribute("data-animal", "elephant");
+
   expect(blocked).toEqual([]);
   expect(errors).toEqual([]);
 });

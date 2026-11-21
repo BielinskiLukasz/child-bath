@@ -1,9 +1,6 @@
 // Źródło: child-page@e7a19ac:js/kapiel.js (viewBox -32 -42 64 84, skala 4 do maski 256 × 336) oraz js/animals.js (sylwetka misia).
 // Zmiany: geometria jako dane (PROJECT.md, A5): ten sam opis kształtu daje rysunek SVG, Path2D i maskę siatki.
-/**
- * Zwierzątko-szkic z Fazy 2. W Fazie 4 zastąpią go prawdziwe postacie z tym samym interfejsem
- * (insideMask, silhouettePath, render SVG w SketchAnimal.tsx).
- */
+/** Archiwalna maska szkicu do deterministycznych testów jednostkowych rdzenia z Fazy 2. */
 import { CELL, GRID_COLS, GRID_ROWS, LW } from "../bath/coverage";
 
 export const VIEWBOX = { x: -32, y: -42, w: 64, h: 84 } as const;

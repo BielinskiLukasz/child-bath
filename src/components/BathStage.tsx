@@ -4,10 +4,14 @@ import {
   useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState,
   type CSSProperties, type ComponentType, type Dispatch, type Ref,
 } from "react";
-import { SketchAnimal } from "../animals/SketchAnimal";
-import { insideMask, silhouettePath, SKETCH_FURS } from "../animals/sketch";
+import { insideMask, silhouettePath } from "../animals/mask";
+import { isFaceReaction, rewardReaction, type ReactionRun } from "../animals/reactions";
+import { AnimalSvg, HangingScarf } from "../animals/render";
+import { pickAnimal } from "../animals/roster";
+import { animalBathState } from "../animals/states";
+import type { AnimalDef } from "../animals/types";
 import { autoBrushRadius, planAutoStrokes, strokePoint, type Stroke } from "../bath/autoStroke";
-import { createGrid, LH, LW, progress as gridProgress, resetGrid, stampSegment, type CoverageGrid } from "../bath/coverage";
+import { createGrid, LH, LW, progress as gridProgress, resetGrid, stampSegment } from "../bath/coverage";
 import { createPool, REDUCED_PARTICLE_LIMIT, spawn, stepPool, type Particle } from "../bath/particles";
 import { brushRadius, STEPS } from "../bath/steps";
 import { bathBoxLabel } from "../copy/announce";
@@ -43,6 +47,7 @@ interface Props {
   ref: Ref<BathStageHandle>;
   session: SessionParams;
   state: BathState;
+  animal: AnimalDef;
   dispatch: Dispatch<BathAction>;
   latch: InputLatch;
   reduced: boolean;
@@ -50,11 +55,12 @@ interface Props {
   Preview: ComponentType<React.ComponentProps<typeof DoorPreview>>;
 }
 
-export function BathStage({ ref, session, state, dispatch, latch, reduced, onAutoBusy, Preview }: Props) {
+export function BathStage({ ref, session, state, animal, dispatch, latch, reduced, onAutoBusy, Preview }: Props) {
   const { pace, ease, oneButton, seed } = session;
   const particleLimit = reduced ? REDUCED_PARTICLE_LIMIT : undefined;
   const fxRng = useMemo(() => createRng(seed ^ 0x5bd1e995), [seed]);
   const nextSeed = useMemo(() => createRng(state.animalSeed ^ 0x6d2b79f5).int(1, MAX_SEED), [state.animalSeed]);
+  const nextAnimal = useMemo(() => pickAnimal(nextSeed, animal.id), [nextSeed, animal.id]);
   const stageRef = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState({ width: 0, height: 0 });
   useLayoutEffect(() => {
@@ -87,19 +93,15 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
   const previewX = door.x + (door.width - previewW) / 2;
   const previewY = door.y + door.height * 0.91 - previewH;
 
-  const animal = useMemo(() => {
-    const rng = createRng(state.animalSeed);
-    return { fur: rng.pick(SKETCH_FURS), layerSeed: rng.int(1, MAX_SEED) };
-  }, [state.animalSeed]);
-  const silhouette = useMemo(silhouettePath, []);
-  const grid = useRef<CoverageGrid | null>(null);
-  if (!grid.current) grid.current = createGrid(insideMask());
+  const layerSeed = useMemo(() => createRng(state.animalSeed ^ 0x37f811e9).int(1, MAX_SEED), [state.animalSeed]);
+  const silhouette = useMemo(() => silhouettePath(animal), [animal]);
+  const grid = useMemo(() => createGrid(insideMask(animal)), [animal]);
   const pool = useRef<Particle[] | null>(null);
   if (!pool.current) pool.current = createPool();
 
   const step = currentStep(state);
   const baseRadius = brushRadius(STEPS[step], ease, boxW);
-  const radius = useMemo(() => oneButton ? autoBrushRadius(grid.current!.inside, baseRadius) : baseRadius, [baseRadius, oneButton]);
+  const radius = useMemo(() => oneButton ? autoBrushRadius(grid.inside, baseRadius) : baseRadius, [baseRadius, grid, oneButton]);
   const live = useRef({ state, radius, reduced });
   useLayoutEffect(() => { live.current = { state, radius, reduced }; });
   const layer = useRef<LayerHandle>(null);
@@ -112,15 +114,17 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
   const currentMove = useRef<AutoMove | null>(null);
   const strokePlan = useRef<{ radius: number; pass: number; strokes: Stroke[] } | null>(null);
   const [strokeCount, setStrokeCount] = useState(0);
+  const [reaction, setReaction] = useState<ReactionRun | null>(null);
+  const reactedTurn = useRef(0);
   const spawnGapMs = scaled(TIMING.particleGap, pace) * 1000;
 
   // Jedna ścieżka dla dotyku, klawiatury i ruchu automatycznego. Nie odczytuje pikseli.
   const segment = useCallback<Segment>((x0, y0, x1, y1) => {
     const { state: current, radius: r } = live.current;
     if (document.hidden || current.phase !== "scrubbing" || !(r > 0)) return false;
-    const changed = stampSegment(grid.current!, x0, y0, x1, y1, r) > 0;
+    const changed = stampSegment(grid, x0, y0, x1, y1, r) > 0;
     layer.current?.stroke(x0, y0, x1, y1, r);
-    if (changed) pendingProgress.current = gridProgress(grid.current!);
+    if (changed) pendingProgress.current = gridProgress(grid);
     const kind = currentStep(current);
     const now = performance.now();
     const inside = x1 >= 0 && x1 <= LW && y1 >= 0 && y1 <= LH;
@@ -128,7 +132,7 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
     lastSpawn.current = now;
     return spawn(pool.current!, x1 + (fxRng.float() - 0.5) * 30, y1 + (fxRng.float() - 0.5) * 20,
       kind === "rinse" ? "drop" : "bubble", fxRng, particleLimit) || changed;
-  }, [fxRng, particleLimit, spawnGapMs]);
+  }, [fxRng, grid, particleLimit, spawnGapMs]);
 
   const tick = useCallback((dt: number) => {
     const { state: current, reduced: isReduced } = live.current;
@@ -153,33 +157,44 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
     }
     // Prawdziwy postęp jest widoczny także przed końcem pasa, ale faza wtedy jeszcze się nie zmienia.
     if (pendingProgress.current !== null || completedStroke) {
-      dispatch({ type: "progress", value: pendingProgress.current ?? gridProgress(grid.current!), finishStroke: !currentMove.current });
+      dispatch({ type: "progress", value: pendingProgress.current ?? gridProgress(grid), finishStroke: !currentMove.current });
       pendingProgress.current = null;
     }
     const timed = isTimed(current);
-    if (timed) dispatch({ type: "tick", dt, pace, reduced: isReduced, nextAnimalSeed: nextSeed });
+    if (timed) dispatch({ type: "tick", dt, pace, reduced: isReduced, nextAnimalSeed: nextSeed, nextAnimalId: nextAnimal.id });
     const alive = stepPool(pool.current!, dt / pace, particleLimit);
     particles.current?.render(pool.current!, isReduced);
     return Boolean(currentMove.current) || timed || alive > 0;
-  }, [nextSeed, onAutoBusy, pace, particleLimit, segment]);
+  }, [dispatch, grid, nextAnimal, nextSeed, onAutoBusy, pace, particleLimit, segment]);
   const wake = useBathClock(tick);
 
   useLayoutEffect(() => {
     if (state.phase !== "scrubbing") tools.current?.reset();
   }, [state.phase]);
 
+  useLayoutEffect(() => {
+    if (state.phase !== "reward") {
+      setReaction(null);
+    } else if (state.animalCount !== reactedTurn.current) {
+      reactedTurn.current = state.animalCount;
+      setReaction(rewardReaction(animal, state.animalSeed, pace, reduced));
+    } else if (reduced) {
+      setReaction((current) => current && isFaceReaction(current.kind) ? current : null);
+    }
+  }, [animal, pace, reduced, state.animalCount, state.animalSeed, state.phase]);
+
   useEffect(() => {
     if (state.phase !== "stage_in" || state.layerReady) return;
-    const rng = createRng((animal.layerSeed + state.stepIndex * 7919) % MAX_SEED);
+    const rng = createRng((layerSeed + state.stepIndex * 7919) % MAX_SEED);
     layer.current?.prepare(STEPS[step], silhouette, rng);
-    resetGrid(grid.current!);
+    resetGrid(grid);
     pendingProgress.current = null;
     strokePlan.current = null;
     currentMove.current = null;
     brush.current = START_BRUSH;
     setStrokeCount(0);
     dispatch({ type: "layerReady" });
-  }, [animal.layerSeed, dispatch, silhouette, state.layerReady, state.phase, state.stepIndex, step]);
+  }, [dispatch, grid, layerSeed, silhouette, state.layerReady, state.phase, state.stepIndex, step]);
 
   useEffect(() => { wake(); }, [state.phase, state.layerReady, reduced, wake]);
 
@@ -202,10 +217,10 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
     },
     startAutoStroke() {
       const { state: current, radius: r, reduced: isReduced } = live.current;
-      if (current.phase !== "scrubbing" || currentMove.current || !(r > 0)) return;
+      if (current.phase !== "scrubbing" || currentMove.current || !(r > 0) || gridProgress(grid) >= current.threshold) return;
       let plan = strokePlan.current;
       if (!plan || plan.radius !== r) {
-        plan = { radius: r, pass: 0, strokes: planAutoStrokes(grid.current!.inside, r) };
+        plan = { radius: r, pass: 0, strokes: planAutoStrokes(grid.inside, r) };
         strokePlan.current = plan;
       }
       if (!plan.strokes.length) return;
@@ -213,7 +228,7 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
       // Po zmianie rozmiaru lub bardzo cienkim narzędziu kolejny obieg wypełnia pominięte komórki.
       // Wybieramy pasy z pozostałej maski, nie zwiększamy sztucznie postępu.
       if (plan.pass === plan.strokes.length + 1) {
-        const { inside, done } = grid.current!;
+        const { inside, done } = grid;
         const remaining = inside.map((value, index) => value && !done[index] ? 1 : 0);
         const extra = planAutoStrokes(remaining, r);
         if (extra.length) {
@@ -230,7 +245,7 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
       if (!isReduced) tools.current?.move(AUTO_TOOL, x, y, true);
       wake();
     },
-  }), [onAutoBusy, segment, showBrush, wake]);
+  }), [grid, onAutoBusy, segment, showBrush, wake]);
 
   const washing = state.phase === "scrubbing";
   useScrub(box, {
@@ -250,7 +265,9 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
   const waiting = state.phase === "door_waiting";
   const arriving = state.phase === "arriving";
   const leaving = state.phase === "to_bench";
-  const progress = clamp01(state.phaseT / phaseDuration(state.phase, pace, reduced));
+  const rewarding = state.phase === "reward";
+  const duration = phaseDuration(state.phase, pace, reduced);
+  const progress = duration > 0 ? clamp01(state.phaseT / duration) : 1;
   const eased = smooth(progress);
   let layerOpacity = 0;
   if (state.phase === "stage_in") layerOpacity = state.layerReady ? progress : 0;
@@ -269,22 +286,41 @@ export function BathStage({ ref, session, state, dispatch, latch, reduced, onAut
     opacity: waiting || (arriving && !reduced) ? 0 : arriving ? eased : leaving ? 1 - eased : 1,
     transform: leaving && !reduced ? `translateX(${boxW * 0.36 * eased}px) scale(${1 - (1 - entryScale) * 0.38 * eased})` : undefined,
   };
+  const bathLook = animalBathState(state.phase, step, animal, state.animalCount);
+  const scarfTransfer = arriving ? clamp01(1 - (duration - state.phaseT) / fadeDuration(TIMING.minFade, pace)) : waiting ? 0 : 1;
+  const hangerSize = Math.min(44, Math.max(32, scene.width / 16));
+  const gettingWet = state.phase === "stage_in" && step === "rinse";
   const boxStyle = {
     left: boxLeft, top: boxTop, width: boxW, height: boxH,
     "--bath-tool-fade": `${fadeDuration(TIMING.toolFade, pace)}s`,
-    "--bath-breath": `${scaled(TIMING.rewardBreath, pace)}s`,
   } as CSSProperties;
 
   return (
     <div ref={stageRef} className="bath-stage" data-phase={state.phase} data-step={step}
-      data-progress={state.progress.toFixed(2)} data-animal={`sketch-${state.animalCount}`}
+      data-progress={state.progress.toFixed(2)} data-animal={animal.id} data-animal-turn={state.animalCount}
       data-seed={seed} data-auto-strokes={strokeCount}>
-      <Preview layout={door} animalStyle={previewStyle} waiting={waiting} fur={animal.fur} animalKey={state.animalCount} />
+      <Preview layout={door} animalStyle={previewStyle} waiting={waiting} def={animal} scarfOpacity={1 - scarfTransfer} />
+      <HangingScarf def={animal} style={{
+        left: scene.width - hangerSize - margin, top: scene.height * 0.18,
+        width: hangerSize, height: hangerSize * 1.5, opacity: scarfTransfer * (leaving ? 1 - eased : 1),
+      }} />
       <div ref={box} className="bath-box" data-phase={state.phase} style={boxStyle} role="application"
-        tabIndex={waiting || arriving ? -1 : 0} aria-label={bathBoxLabel(oneButton)}
+        tabIndex={waiting || arriving ? -1 : 0} aria-label={bathBoxLabel(animal, oneButton)}
         onFocus={showBrush} onBlur={() => tools.current?.end(KEY_TOOL)}>
-        <div className="bath-animal" style={animalStyle} data-reward={state.phase === "reward" ? "true" : undefined}>
-          <SketchAnimal fur={animal.fur} />
+        <div className="bath-animal" style={animalStyle}>
+          <div className="bath-animal__base">
+            <AnimalSvg def={animal} state={leaving ? "washed" : rewarding ? (step === "dry" ? "wet" : "clean") : gettingWet ? "clean" : bathLook} reduced={reduced}
+              surface={step === "rinse"} scarfOpacity={arriving ? 1 - scarfTransfer : 1} />
+          </div>
+          {gettingWet && <div className="bath-animal__blend" style={{ opacity: layerOpacity }}>
+            <AnimalSvg def={animal} state="wet" reduced={reduced} />
+          </div>}
+          {rewarding && <div className="bath-animal__reward">
+            <AnimalSvg def={animal} state="washed" reaction={reaction} reduced={reduced} />
+          </div>}
+          {leaving && <div className="bath-animal__blend" style={{ opacity: clamp01(state.phaseT / fadeDuration(TIMING.minFade, pace)) }}>
+            <AnimalSvg def={animal} state={bathLook} reduced={reduced} />
+          </div>}
         </div>
         <LayerCanvas ref={layer} opacity={layerOpacity} />
         <Particles ref={particles} />

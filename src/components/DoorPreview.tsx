@@ -1,11 +1,12 @@
 import type { CSSProperties } from "react";
-import { SketchAnimal } from "../animals/SketchAnimal";
+import { AnimalSvg } from "../animals/render";
+import type { AnimalDef } from "../animals/types";
 
 export interface PreviewLayout { x: number; y: number; width: number; height: number }
 
 /** Papierowa wnęka z boku sceny; przyszłe scenerie podmienią ją na własne wejścia. */
-export function DoorPreview({ layout, fur, animalStyle, waiting, animalKey }: {
-  layout: PreviewLayout; fur: string; animalStyle: CSSProperties | null; waiting: boolean; animalKey: number;
+export function DoorPreview({ layout, def, animalStyle, waiting, scarfOpacity }: {
+  layout: PreviewLayout; def: AnimalDef; animalStyle: CSSProperties | null; waiting: boolean; scarfOpacity: number;
 }) {
   return (
     <>
@@ -20,8 +21,8 @@ export function DoorPreview({ layout, fur, animalStyle, waiting, animalKey }: {
       </svg>
       {animalStyle && (
         <div className="door-preview-animal" data-waiting={waiting ? "true" : undefined} style={animalStyle}>
-          <div className="door-preview-animal__fade" key={animalKey} aria-hidden="true">
-            <SketchAnimal fur={fur} />
+          <div className="door-preview-animal__fade" key={def.id} aria-hidden="true">
+            <AnimalSvg def={def} state="scarf" mood={waiting ? "curious" : "cheerful"} scarfOpacity={scarfOpacity} />
           </div>
         </div>
       )}

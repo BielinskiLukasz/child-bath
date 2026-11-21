@@ -1,3 +1,4 @@
+import type { AnimalId } from "./animals/types";
 import { EASE, type EaseKey, type StepKind } from "./bath/steps";
 import { TIMING, fadeDuration, scaled } from "./timing";
 
@@ -11,6 +12,7 @@ export interface BathState {
   progress: number;
   phaseT: number;
   layerReady: boolean;
+  animalId: AnimalId;
   animalSeed: number;
   animalCount: number;
   threshold: number;
@@ -18,15 +20,15 @@ export interface BathState {
 
 export type BathAction =
   | { type: "next" }
-  | { type: "tick"; dt: number; pace: number; reduced: boolean; nextAnimalSeed: number }
+  | { type: "tick"; dt: number; pace: number; reduced: boolean; nextAnimalSeed: number; nextAnimalId: AnimalId }
   | { type: "progress"; value: number; finishStroke?: boolean }
   | { type: "layerReady" };
 
-export function createBathState(steps: readonly StepKind[], seed: number, ease: EaseKey): BathState {
+export function createBathState(steps: readonly StepKind[], seed: number, ease: EaseKey, animalId: AnimalId = "bear"): BathState {
   if (steps.length === 0) throw new Error("Rytuał musi mieć co najmniej jeden krok.");
   return {
     phase: "door_waiting", steps: [...steps], stepIndex: 0, progress: 0, phaseT: 0,
-    layerReady: false, animalSeed: seed, animalCount: 1, threshold: EASE[ease].threshold,
+    layerReady: false, animalId, animalSeed: seed, animalCount: 1, threshold: EASE[ease].threshold,
   };
 }
 
@@ -50,7 +52,7 @@ export function isTimed(state: BathState): boolean {
   return state.phase !== "door_waiting" && state.phase !== "scrubbing";
 }
 
-function advance(state: BathState, nextAnimalSeed: number): BathState {
+function advance(state: BathState, nextAnimalSeed: number, nextAnimalId: AnimalId): BathState {
   switch (state.phase) {
     case "arriving": return { ...state, phase: "stage_in", phaseT: 0 };
     case "stage_in": return { ...state, phase: "scrubbing", phaseT: 0 };
@@ -62,7 +64,7 @@ function advance(state: BathState, nextAnimalSeed: number): BathState {
     case "to_bench":
       return {
         ...state, phase: "door_waiting", stepIndex: 0, progress: 0, phaseT: 0,
-        layerReady: false, animalSeed: nextAnimalSeed, animalCount: state.animalCount + 1,
+        layerReady: false, animalSeed: nextAnimalSeed, animalId: nextAnimalId, animalCount: state.animalCount + 1,
       };
     default: return state;
   }
@@ -87,7 +89,7 @@ export function bathReducer(state: BathState, action: BathAction): BathState {
       const phaseT = state.phaseT + action.dt;
       return phaseT < phaseDuration(state.phase, action.pace, action.reduced)
         ? { ...state, phaseT }
-        : advance(state, action.nextAnimalSeed);
+        : advance(state, action.nextAnimalSeed, action.nextAnimalId);
     }
   }
 }

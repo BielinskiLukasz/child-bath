@@ -1,3 +1,5 @@
+import { isAnimalId } from "../animals/roster";
+import type { AnimalId } from "../animals/types";
 import { isEaseKey, type EaseKey, type StepKind } from "../bath/steps";
 import { MAX_SEED, randomSeed } from "../random";
 import { DEFAULT_BATH_SETTINGS, PACES, type BathPace } from "./defaults";
@@ -9,6 +11,7 @@ export interface SessionParams {
   pace: BathPace;
   steps: readonly StepKind[];
   oneButton: boolean;
+  animal?: AnimalId;
 }
 
 const APPLY_LAYER_TEST: readonly StepKind[] = ["lather"];
@@ -23,11 +26,13 @@ export function readSessionParams(search: string = window.location.search): Sess
   const seed = Number(query.get("seed"));
   const ease = query.get("ease");
   const pace = Number(query.get("pace"));
+  const animal = query.get("animal");
   return {
     seed: Number.isInteger(seed) && seed > 0 && seed <= MAX_SEED ? seed : defaults.seed,
     ease: isEaseKey(ease) ? ease : defaults.ease,
     pace: PACES.find((value) => value === pace) ?? defaults.pace,
     steps: query.get("layer") === "apply" ? APPLY_LAYER_TEST : defaults.steps,
     oneButton: query.get("oneButton") === "1",
+    ...(isAnimalId(animal) ? { animal } : {}),
   };
 }

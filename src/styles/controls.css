@@ -14,7 +14,7 @@
   animation: bath-reveal var(--bath-fade) ease-out both;
 }
 .action { animation: bath-reveal var(--bath-fade) ease-out backwards; }
-.door-preview-animal[data-waiting] .sketch-animal {
+.door-preview-animal[data-waiting] .animal-svg {
   transform-origin: 50% 94%;
   animation: bath-breathe var(--preview-breath) ease-in-out infinite;
 }

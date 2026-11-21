@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { insideMask } from "../../src/animals/sketch";
 import { createGrid, LH, LW, progress, stampSegment } from "../../src/bath/coverage";
 import { brushRadius, STEPS } from "../../src/bath/steps";
 import { openBath } from "../helpers/bath";
@@ -22,7 +21,10 @@ async function layerAlpha(page: Page) {
 for (const mode of ["erase", "apply"] as const) {
   test(`znany gest ${mode === "erase" ? "zmywa" : "nakłada"} warstwę dokładnie pod narzędziem`, async ({ page }) => {
     const step = mode === "erase" ? STEPS.scrub : STEPS.lather;
-    await openBath(page, `./?test=1&seed=7&layer=${mode}`);
+    // Siatka Misia pochodzi z tego samego modelu co renderer i jest widoczna tylko w przeglądzie testowym.
+    await page.goto("./?test=1&gallery=animals&mask=1");
+    const mask = Uint8Array.from((await page.locator('[data-mask-for="bear"]').textContent()) ?? "", Number);
+    await openBath(page, `./?test=1&seed=7&animal=bear&layer=${mode}`);
     const stage = page.locator(STAGE);
     await expect(stage).toHaveAttribute("data-step", step.kind);
     await expect(stage).toHaveAttribute("data-phase", "scrubbing");
@@ -32,8 +34,8 @@ for (const mode of ["erase", "apply"] as const) {
     const before = await layerAlpha(page);
     expect(before.outside).toBe(0);
     if (mode === "erase") {
-      expect(before.center).toBeGreaterThan(200);
-      expect(before.body).toBeGreaterThan(200);
+      expect(before.center).toBeGreaterThan(120);
+      expect(before.body).toBeGreaterThan(120);
     } else {
       expect(before).toEqual({ center: 0, body: 0, outside: 0 });
     }
@@ -55,7 +57,7 @@ for (const mode of ["erase", "apply"] as const) {
     expect(Math.abs(bounds.y + bounds.height / 2 - y)).toBeLessThan(1);
     expect(bounds.width).toBeGreaterThanOrEqual(43.95);
 
-    const grid = createGrid(insideMask());
+    const grid = createGrid(mask);
     const px = (x: number) => (x - box.x) * LW / box.width;
     const py = (y - box.y) * LH / box.height;
     const radius = brushRadius(step, "normal", box.width);

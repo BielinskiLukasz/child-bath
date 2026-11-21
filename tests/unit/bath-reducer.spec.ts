@@ -3,7 +3,7 @@ import { CLASSIC_STEPS, EASE, type EaseKey } from "../../src/bath/steps";
 import { bathReducer, createBathState, phaseDuration, type BathAction, type BathState } from "../../src/game";
 import { TIMING } from "../../src/timing";
 
-const tick = (dt: number, pace = 1, reduced = false, nextAnimalSeed = 2): BathAction => ({ type: "tick", dt, pace, reduced, nextAnimalSeed });
+const tick = (dt: number, pace = 1, reduced = false, nextAnimalSeed = 2): BathAction => ({ type: "tick", dt, pace, reduced, nextAnimalSeed, nextAnimalId: "frog" });
 const run = (state: BathState, actions: BathAction[]) => actions.reduce(bathReducer, state);
 const started = (state: BathState) => run(state, [{ type: "next" }, tick(TIMING.arriving)]);
 const wash = (state: BathState) => run(state, [{ type: "layerReady" }, tick(TIMING.stageIn)]);

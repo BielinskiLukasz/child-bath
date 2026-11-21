@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState, type CSSProperties, type MouseEventHandler } from "react";
+import { ANIMALS_BY_ID, pickAnimal } from "./animals/roster";
 import { BathStage, type BathStageHandle } from "./components/BathStage";
 import { DoorPreview } from "./components/DoorPreview";
 import { LiveRegion } from "./components/LiveRegion";
@@ -6,6 +7,7 @@ import { NextButton } from "./components/NextButton";
 import { OneButtonKey } from "./components/OneButtonKey";
 import { PlaceholderTub } from "./components/illustration/PlaceholderTub";
 import { bathAnnouncement } from "./copy/announce";
+import { Gallery } from "./dev/Gallery";
 import { bathReducer, createBathState, currentStep } from "./game";
 import { useReducedMotion } from "./hooks/useReducedMotion";
 import { isArrowKey } from "./input/keyboardBrush";
@@ -22,10 +24,18 @@ function ownsKeys(target: EventTarget | null): boolean {
 }
 
 export default function App() {
+  const search = window.location.search;
+  if (isTestMode(search) && new URLSearchParams(search).get("gallery") === "animals") return <Gallery />;
+  return <BathGame />;
+}
+
+function BathGame() {
   const [testMode] = useState(() => isTestMode());
   const [params] = useState(() => readSessionParams());
   const { oneButton, pace } = params;
-  const [state, dispatch] = useReducer(bathReducer, params, ({ steps, seed, ease }) => createBathState(steps, seed, ease));
+  const [state, dispatch] = useReducer(bathReducer, params, ({ steps, seed, ease, animal }) =>
+    createBathState(steps, seed, ease, animal ?? pickAnimal(seed).id));
+  const animal = ANIMALS_BY_ID[state.animalId];
   const [latch] = useState(createInputLatch);
   const [ready, setReady] = useState(true);
   const [autoBusy, setAutoBusy] = useState(false);
@@ -128,7 +138,7 @@ export default function App() {
       </header>
       <main id="scene" className="scene" data-zone="Scena" aria-label="Łazienka">
         <PlaceholderTub />
-        <BathStage ref={stage} session={params} state={state} dispatch={dispatch} latch={latch}
+        <BathStage ref={stage} session={params} state={state} animal={animal} dispatch={dispatch} latch={latch}
           reduced={reduced} onAutoBusy={setAutoBusy} Preview={DoorPreview} />
       </main>
       <section id="narration" className="narration" data-zone="Narracja" aria-hidden="true">
@@ -138,7 +148,7 @@ export default function App() {
         {oneButton ? <OneButtonKey ready={canUseButton} waiting={waiting} onActivate={onActivate} />
           : <NextButton ready={canUseButton} onActivate={onActivate} />}
       </footer>
-      <LiveRegion message={bathAnnouncement(state.phase, currentStep(state), state.stepIndex, state.steps.length)} />
+      <LiveRegion message={bathAnnouncement(state.phase, currentStep(state), state.stepIndex, state.steps.length, animal)} />
     </div>
   );
 }

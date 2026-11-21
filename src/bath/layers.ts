@@ -33,7 +33,8 @@ export function paintLayer(ctx: CanvasRenderingContext2D, step: StepDef, silhoue
   const point = () => [rng.float() * LW, rng.float() * LH] as const;
 
   if (kind === "dirt") {
-    ctx.globalAlpha = 0.9;
+    // Keep the species' markings readable beneath the bath layer.
+    ctx.globalAlpha = 0.53;
     ctx.fillStyle = "#b78268";
     ctx.fillRect(0, 0, LW, LH);
     ctx.globalAlpha = 1;
@@ -42,6 +43,7 @@ export function paintLayer(ctx: CanvasRenderingContext2D, step: StepDef, silhoue
       dot(ctx, x, y, 6 + rng.float() * 20, rng.float() < 0.5 ? "rgba(156, 113, 85, 0.45)" : "rgba(212, 163, 140, 0.38)");
     }
   } else if (kind === "foam") {
+    ctx.globalAlpha = 0.66;
     ctx.fillStyle = "#f8f5e8";
     ctx.fillRect(0, 0, LW, LH);
     ctx.lineWidth = 1.5;
@@ -54,7 +56,7 @@ export function paintLayer(ctx: CanvasRenderingContext2D, step: StepDef, silhoue
       if (rng.float() < 0.35) dot(ctx, x - r * 0.35, y - r * 0.35, 1.2, "#ffffff");
     }
   } else {
-    ctx.globalAlpha = 0.34;
+    ctx.globalAlpha = 0.23;
     ctx.fillStyle = "#4e6754";
     ctx.fillRect(0, 0, LW, LH);
     ctx.globalAlpha = 1;

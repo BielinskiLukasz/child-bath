@@ -4,7 +4,7 @@ Spokojna, cicha aplikacja PWA po polsku dla małego dziecka. Dziecko kąpie zwie
 
 Aplikacja powstaje najpierw z myślą o telefonie. Działa offline, bez dźwięku, reklam i wysyłania danych. Styl i rozwiązania techniczne pochodzą z [child-train](https://github.com/BielinskiLukasz/child-train), a mechanika kąpieli z aktywności „Kąpiel Zwierzątek” w [child-page](https://github.com/BielinskiLukasz/child-page).
 
-> **Stan: Faza 3 z 12 (sterowanie i przejścia).** Każde zwierzątko czeka na „Dalej” lub Enter. Trzy kroki można przejść dotykiem, myszą lub klawiaturą. Tryb jednoprzyciskowy do przeglądu: `?test=1&oneButton=1`. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 3](planning/phases/PHASE-03-SUMMARY.md).
+> **Stan: Faza 4 z 12 (postacie).** W kąpieli można spotkać 20 zwierzątek. Pierwsze i każde następne czeka na „Dalej” lub Enter. Dotyk, mysz i klawiatura prowadzą przez trzy kroki kąpieli. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 4](planning/phases/PHASE-04-SUMMARY.md).
 
 ## Zasady
 
@@ -55,7 +55,10 @@ Przed `dev`, `build` i `test` ikony generują się automatycznie.
 
 ## Tryb testowy
 
-Parametr `?test=1` pokazuje ramki stref oraz przykładową narrację. Tylko wtedy można nadpisać `seed`, `ease` (`easy`, `normal`, `precise`), `pace` i `oneButton`. `?test=1&layer=apply` uruchamia próbę nakładania warstwy; w zwykłej zabawie nadal są trzy kroki klasyczne. [Wyniki Fazy 3](planning/phases/PHASE-03-SUMMARY.md).
+Parametr `?test=1` pokazuje ramki stref oraz przykładową narrację. Tylko wtedy można nadpisać `seed`, `ease` (`easy`, `normal`, `precise`), `pace` i `oneButton`. `?test=1&layer=apply` uruchamia próbę nakładania warstwy; w zwykłej zabawie nadal są trzy kroki klasyczne.
+
+- **Galeria postaci:** `?test=1&gallery=animals`. Zmień stan całej rodziny, a potem wybierz zwierzątko, żeby obejrzeć reakcje, odmianę imienia i kotwice.
+- **Kąpiel konkretnego zwierzątka:** `?test=1&animal=labrador` albo przycisk „Wykąp” w galerii. W zwykłej grze wybór jest losowany z ziarnem, bez powtórzeń z rzędu.
 
 ## Offline i PWA
 

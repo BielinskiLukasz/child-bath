@@ -36,7 +36,7 @@ async function scrubWithMouse(page: Page) {
 }
 
 async function strokeWithFingers(page: Page, fingers: 1 | 2): Promise<number> {
-  await openBath(page, "./?test=1&seed=3");
+  await openBath(page, "./?test=1&seed=3&animal=bear");
   const box = await boxOf(page);
   const ys = [0.55, 0.75].slice(0, fingers).map((fraction) => box.y + box.height * fraction);
   const x0 = box.x + box.width * 0.25;
@@ -67,9 +67,9 @@ async function setHidden(page: Page, hidden: boolean) {
 test("pocieranie myszą przechodzi trzy kroki, a potem kolejne zwierzątko czeka na Dalej", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await openBath(page, "./?test=1&seed=7&ease=easy");
+  await openBath(page, "./?test=1&seed=7&animal=bear&ease=easy");
   const stage = page.locator(STAGE);
-  await expect(stage).toHaveAttribute("data-animal", "sketch-1");
+  await expect(stage).toHaveAttribute("data-animal", "bear");
 
   for (const step of ["scrub", "rinse", "dry"]) {
     await expect(stage).toHaveAttribute("data-step", step, { timeout: 15_000 });
@@ -97,7 +97,8 @@ test("pocieranie myszą przechodzi trzy kroki, a potem kolejne zwierzątko czeka
     await scrubWithMouse(page);
   }
 
-  await expect(stage).toHaveAttribute("data-animal", "sketch-2", { timeout: 15_000 });
+  await expect(stage).toHaveAttribute("data-animal-turn", "2", { timeout: 15_000 });
+  await expect(stage).not.toHaveAttribute("data-animal", "bear");
   await expect(stage).toHaveAttribute("data-step", "scrub");
   await expect(stage).toHaveAttribute("data-phase", "door_waiting");
   expect(errors).toEqual([]);

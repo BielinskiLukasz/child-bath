@@ -1,0 +1,54 @@
+/* Unlike the bath, the review gallery can scroll. */
+.animal-gallery {
+  height: 100dvh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  background: var(--paper);
+  color: var(--ink);
+  padding: max(24px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) max(40px, env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+}
+.gallery-inner { max-width: 1060px; margin: 0 auto; }
+.gallery-header { padding-bottom: 24px; border-bottom: 1px solid color-mix(in srgb, var(--wood) 30%, var(--paper)); }
+.gallery-back { display: inline-flex; align-items: center; gap: 0.55rem; min-height: 44px; font-size: 0.95rem; }
+.gallery-back:hover, .gallery-bath-link:hover { text-decoration: underline; }
+.gallery-kicker { margin: 12px 0 0; color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.gallery-header h1, .gallery-inspector h2 { font-family: var(--font-display); font-weight: 500; line-height: 1; margin: 12px 0; }
+.gallery-header h1 { font-size: clamp(2.35rem, 6.4vw, 4rem); }
+.gallery-header p:last-child, .gallery-reaction-note { color: var(--muted); }
+.gallery-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 570px; margin: 22px 0 18px; }
+.gallery-filters label { min-width: 0; color: var(--muted); font-size: 0.82rem; }
+.gallery-filters select { display: block; width: 100%; min-height: 44px; margin-top: 4px; padding: 8px 10px; color: var(--ink); border: 1px solid var(--towel-sage); background: var(--foam-shade); border-radius: 8px; }
+.gallery-grid { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(118px, 100%), 1fr)); padding: 8px; margin: 0; gap: 8px; background: color-mix(in srgb, var(--tile-a) 38%, var(--paper)); border-radius: 16px; }
+.gallery-tile { width: 100%; min-height: 44px; display: grid; justify-items: center; padding: 7px 5px 10px; border: 1px solid transparent; border-radius: 12px; cursor: pointer; }
+.gallery-tile:disabled { cursor: default; }
+.gallery-tile:is(:hover, [aria-pressed="true"]) { background: var(--sky-bottom); border-color: var(--towel-sage); }
+.gallery-tile .animal-svg { width: min(100%, 110px); height: 122px; overflow: visible; }
+.gallery-tile strong { font: 500 1.05rem/1.1 var(--font-display); }
+.gallery-tile span { color: var(--muted); font-size: 0.76rem; margin-top: 5px; }
+.gallery-inspector { margin-top: 32px; padding-top: 24px; border-top: 1px solid color-mix(in srgb, var(--wood) 30%, var(--paper)); display: grid; grid-template-columns: minmax(230px, 0.75fr) 1fr; gap: 32px; }
+.gallery-inspector__controls { min-width: 0; }
+.gallery-inspector h2 { font-size: clamp(2rem, 4vw, 2.9rem); }
+.gallery-inspector h3 { margin: 18px 0 6px; font-weight: 500; }
+.gallery-inspector__art { align-self: start; text-align: center; }
+.gallery-portrait { position: relative; height: 272px; max-width: 310px; margin: 0 auto; border-radius: 48% 48% 12% 12%; background: var(--sky-bottom); }
+.gallery-portrait .animal-svg { will-change: auto; overflow: visible; }
+.gallery-anchors { position: absolute; inset: 0; width: 100%; height: 100%; fill: var(--berry); stroke: var(--foam); stroke-width: 0.5; }
+.gallery-bath-link, .gallery-reactions button { display: inline-flex; align-items: center; gap: 0.55rem; min-height: 44px; border: 1px solid var(--towel-sage); border-radius: 8px; padding: 7px 12px; }
+.gallery-bath-link { margin-top: 15px; background: var(--tile-a); }
+.gallery-reactions { display: flex; flex-wrap: wrap; gap: 6px; }
+.gallery-reactions button:not([aria-disabled="true"]) { cursor: pointer; }
+.gallery-reactions button:not([aria-disabled="true"]):hover { background: var(--sky-bottom); }
+.gallery-reactions [aria-disabled="true"] { opacity: 0.5; }
+.gallery-reaction-note { font-size: 0.84rem; margin-top: 8px; min-height: 1.8em; }
+.gallery-check, .gallery-inspector summary { min-height: 44px; display: flex; align-items: center; gap: 0.5em; cursor: pointer; }
+.gallery-check input { accent-color: var(--ink); }
+.gallery-inspector details { border-top: 1px solid color-mix(in srgb, var(--wood) 22%, var(--paper)); }
+.gallery-inspector summary::before { content: "+"; color: var(--muted); }
+.gallery-inspector details[open] summary::before { content: "−"; }
+.gallery-inspector dl { padding: 0 4px 12px; font-size: 0.9rem; }
+.gallery-inspector dl div { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.gallery-inspector dt { color: var(--muted); }
+.animal-gallery :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+@media (max-width: 650px) { .gallery-inspector { grid-template-columns: 1fr; gap: 16px; } }

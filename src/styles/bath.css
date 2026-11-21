@@ -18,13 +18,12 @@
 .little-world[data-one-button="true"] .bath-box { cursor: default; }
 .bath-box:focus-visible { outline: 4px solid var(--ink); outline-offset: -4px; border-radius: 12px; }
 .bath-box > * { position: absolute; inset: 0; width: 100%; height: 100%; }
-.sketch-animal,
+.animal-svg,
 .bath-layer { display: block; width: 100%; height: 100%; pointer-events: none; }
 .bath-animal { pointer-events: none; transform-origin: center bottom; }
-.bath-animal[data-reward] .sketch-animal {
-  transform-origin: 50% 90%;
-  animation: bath-breathe var(--bath-breath) ease-in-out infinite;
-}
+.bath-animal__base, .bath-animal__blend, .bath-animal__reward { position: absolute; inset: 0; }
+.bath-animal__reward { animation: bath-reveal var(--bath-fade) ease-out both; }
+.hanging-scarf { position: absolute; pointer-events: none; }
 
 .bath-particles { overflow: visible; pointer-events: none; }
 .bath-particle--bubble { fill: var(--foam, #fffcf3); fill-opacity: 0.55; stroke: var(--water-light); stroke-width: 1.2; }

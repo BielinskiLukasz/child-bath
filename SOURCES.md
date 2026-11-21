@@ -39,6 +39,10 @@ Każdy plik przeniesiony w całości lub w części z innego repozytorium ma na 
 | `src/bath/layers.ts` | child-page `js/kapiel.js` (`drawLayer`, `erase`) | paleta child-train, losowanie z ziarnem, kropka dla pojedynczego dotyku |
 | `src/bath/particles.ts` | child-page `js/kapiel.js` (pula baniek i kropli) | czysty moduł; ruch przez transform i opacity w `Particles.tsx` |
 | `src/animals/sketch.ts` | child-page `js/kapiel.js` (viewBox, skala maski) i `js/animals.js` (sylwetka misia) | geometria jako dane: SVG, `Path2D` i maska siatki z jednego opisu |
+| `src/animals/geometry/template.ts` | child-train `src/components/illustration/Animal.tsx` | frontalny korpus, twarz i warianty oczu jako dane w układzie kąpieli |
+| `src/animals/species/woodland.ts` | child-train `src/components/illustration/Animal.tsx` | dziewięć leśnych sylwetek i ich palety |
+| `src/animals/species/familiar.ts` | child-train `src/components/illustration/Animal.tsx`, child-page `js/dogs.js` | pozostałe siedem postaci; dawny Kotek to Dachowiec, a Piesek to Labrador z paletą rasową |
+| `src/animals/species/visitors.ts` | child-page `js/animals.js` | Lew, Słoń, Panda i Koala przerysowani we wspólnym szablonie |
 | `src/hooks/useBathClock.ts` | child-page `js/kapiel.js` (`frame`, `start`, `onVis`) | hook Reacta; `tick` zwraca, czy coś trwa, `wake()` budzi pętlę |
 | `src/hooks/useScrub.ts` | child-page `js/kapiel.js` (`down`, `move`, `up`, `toLogical`) | hook Reacta, zdarzenia scalone, kursor myszy bez wciśnięcia |
 | `src/input/keyboardBrush.ts` | child-page `js/kapiel.js` (`brushTo`, `onKey`) | czysta obsługa strzałek i zygzaka w logicznych współrzędnych |

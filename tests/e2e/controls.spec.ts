@@ -65,8 +65,8 @@ test("pierwsze zwierzątko czeka, a Dalej zachowuje fokus i ma odpowiedni rozmia
 });
 
 test("Tab, strzałki, Spacja i Enter prowadzą przez całą kąpiel bez myszy", async ({ page }) => {
-  await openWithClock(page, "&ease=easy");
-  const box = page.getByRole("application", { name: /Zwierzątko do kąpieli/ });
+  await openWithClock(page, "&ease=easy&animal=bear");
+  const box = page.getByRole("application", { name: /Miś do kąpieli/ });
   await page.keyboard.press("Tab");
   await expect(button(page)).toBeFocused();
   await page.keyboard.press("Enter");
@@ -88,7 +88,8 @@ test("Tab, strzałki, Spacja i Enter prowadzą przez całą kąpiel bez myszy", 
     if (step !== "dry") await waitForWashing(page);
   }
   await phase(page, "door_waiting");
-  await expect(scene(page)).toHaveAttribute("data-animal", "sketch-2");
+  await expect(scene(page)).toHaveAttribute("data-animal-turn", "2");
+  await expect(scene(page)).not.toHaveAttribute("data-animal", "bear");
   await expect(button(page)).toBeFocused();
   await expect(button(page)).toHaveAttribute("aria-disabled", "false");
   await page.clock.runFor(1400);
@@ -98,7 +99,7 @@ test("Tab, strzałki, Spacja i Enter prowadzą przez całą kąpiel bez myszy", 
 });
 
 test("w trybie jednoprzyciskowym szybka seria i przytrzymanie nie kolejkują pasów", async ({ page }, testInfo) => {
-  await openWithClock(page, "&oneButton=1");
+  await openWithClock(page, "&oneButton=1&animal=bear");
   const touch = Boolean(testInfo.project.use.hasTouch);
   if (touch) await tapControl(page, true);
   else await page.keyboard.press("Enter");
@@ -142,7 +143,7 @@ test("w trybie jednoprzyciskowym szybka seria i przytrzymanie nie kolejkują pas
 });
 
 test("jeden region ogłasza wszystkie fazy, a ograniczony ruch działa od razu", async ({ page }) => {
-  await openWithClock(page, "&oneButton=1&layer=apply");
+  await openWithClock(page, "&oneButton=1&layer=apply&animal=frog");
   const live = page.locator("[aria-live]");
   const infinite = () => page.evaluate(() => document.getAnimations().filter((a) => a.effect?.getTiming().iterations === Infinity).length);
   await expect(live).toHaveCount(1);
@@ -152,7 +153,7 @@ test("jeden region ogłasza wszystkie fazy, a ograniczony ruch działa od razu",
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect.poll(infinite).toBe(0);
   await page.keyboard.press("Enter");
-  await expect(live).toHaveText("Zwierzątko wchodzi do kąpieli.");
+  await expect(live).toHaveText("Żabka wchodzi do kąpieli.");
   await page.clock.runFor(880);
   await expect(live).toHaveText("Przygotowanie kroku 1.");
   await page.clock.runFor(1440);
@@ -172,10 +173,10 @@ test("jeden region ogłasza wszystkie fazy, a ograniczony ruch działa od razu",
     await page.clock.runFor(425);
   }
   await page.clock.runFor(80);
-  await expect(live).toHaveText("Zwierzątko jest czyste.");
+  await expect(live).toHaveText("Żabka jest czysta.");
   await expect.poll(infinite).toBe(0);
   await page.clock.runFor(2050);
-  await expect(live).toHaveText("Zwierzątko odchodzi odpocząć.");
+  await expect(live).toHaveText("Żabka odchodzi odpocząć.");
   await page.clock.runFor(1450);
   await expect(live).toContainText("czeka na kąpiel");
   await inputReady(page);
