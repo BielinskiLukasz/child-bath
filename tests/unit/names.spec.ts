@@ -22,9 +22,25 @@ m|Żółwik|Żółwika|Żółwikowi|Żółwika|Żółwikiem|Żółwiku
 m|Lew|Lwa|Lwu|Lwa|Lwem|Lwie
 m|Słoń|Słonia|Słoniowi|Słonia|Słoniem|Słoniu
 f|Panda|Pandy|Pandzie|Pandę|Pandą|Pandzie
-m|Koala|Koali|Koali|Koalę|Koalą|Koali`;
+m|Koala|Koali|Koali|Koalę|Koalą|Koali
+f|Kapibara|Kapibary|Kapibarze|Kapibarę|Kapibarą|Kapibarze
+m|Pingwinek|Pingwinka|Pingwinkowi|Pingwinka|Pingwinkiem|Pingwinku
+f|Wydra|Wydry|Wydrze|Wydrę|Wydrą|Wydrze
+m|Diplodok|Diplodoka|Diplodokowi|Diplodoka|Diplodokiem|Diplodoku
+m|Triceratops|Triceratopsa|Triceratopsowi|Triceratopsa|Triceratopsem|Triceratopsie
+m|Stegozaur|Stegozaura|Stegozaurowi|Stegozaura|Stegozaurem|Stegozaurze
+m|Parazaurolof|Parazaurolofa|Parazaurolofowi|Parazaurolofa|Parazaurolofem|Parazaurolofie
+m|T-Rex|T-Reksa|T-Reksowi|T-Reksa|T-Reksem|T-Reksie
+m|Dalmatyńczyk|Dalmatyńczyka|Dalmatyńczykowi|Dalmatyńczyka|Dalmatyńczykiem|Dalmatyńczyku
+m|Jamnik|Jamnika|Jamnikowi|Jamnika|Jamnikiem|Jamniku
+m|Pudel|Pudla|Pudlowi|Pudla|Pudlem|Pudlu
+m|Husky|Husky|Husky|Husky|Husky|Husky
+m|Buldog|Buldoga|Buldogowi|Buldoga|Buldogiem|Buldogu
+m|Kotek perski|Kotka perskiego|Kotkowi perskiemu|Kotka perskiego|Kotkiem perskim|Kotku perskim
+m|Kotek syjamski|Kotka syjamskiego|Kotkowi syjamskiemu|Kotka syjamskiego|Kotkiem syjamskim|Kotku syjamskim
+m|Kotek brytyjski|Kotka brytyjskiego|Kotkowi brytyjskiemu|Kotka brytyjskiego|Kotkiem brytyjskim|Kotku brytyjskim`;
 
-test("odmiana 20 imion w sześciu przypadkach i zgodność rodzaju czasownika", () => {
+test("odmiana 36 imion w sześciu przypadkach i zgodność rodzaju czasownika", () => {
   expect(ANIMALS.map((animal) => [animal.rodzaj, ...NAME_CASES.map((variant) => name(animal, variant))].join("|")).join("\n")).toBe(EXPECTED);
   for (const def of ANIMALS) {
     expect(byGender(def, { m: "skakał", f: "skakała", n: "skakało" })).toBe(def.rodzaj === "f" ? "skakała" : "skakał");

@@ -19,6 +19,10 @@ export function circle(part: PartId, cx: number, cy: number, r: number, fill: Co
   return { part, el: "circle", attrs: { cx, cy, r }, fill, silhouette, matrix };
 }
 
+export function rounded(part: PartId, x: number, y: number, width: number, height: number, rx: number, fill: ColorRef = "fur", silhouette = false): Shape {
+  return { part, el: "rect", attrs: { x, y, width, height, rx }, fill, silhouette, matrix };
+}
+
 export function path(part: PartId, d: string, fill: ColorRef = "fur", silhouette = false): Shape {
   return { part, el: "path", attrs: { d }, fill, silhouette, matrix };
 }
@@ -45,6 +49,9 @@ interface RigOptions {
   head: readonly Shape[];
   details?: readonly Shape[];
   bodyDetails?: readonly Shape[];
+  body?: readonly Shape[];
+  paws?: readonly Shape[];
+  arms?: readonly Shape[];
   limbs?: ColorRef;
   feet?: ColorRef;
   eyes?: Eye;
@@ -54,10 +61,13 @@ interface RigOptions {
   smile?: false | string;
   anchors?: Partial<Record<AnchorKind, Point>>;
   mouth?: Point;
+  coatProfile?: AnimalRig["coatProfile"];
+  collar?: { center: Point; width: number };
 }
 
 export const head = (rx: number, ry: number, fill: ColorRef = "fur") => oval("head", 0, -1, rx, ry, fill, true);
 export const muzzle = (rx: number, ry: number, fill: ColorRef = "accent", cy = 11) => oval("face", 0, cy, rx, ry, fill);
+export const waving = (shape: Shape): Shape => ({ ...shape, motion: "paw" });
 
 export function makeRig(options: RigOptions): AnimalRig {
   const limbs = options.limbs ?? "fur";
@@ -76,18 +86,21 @@ export function makeRig(options: RigOptions): AnimalRig {
   );
   const anchors: Record<AnchorKind, Point> = { headTop: [0, -29], earLeft: [-25, -25], earRight: [25, -25], neck: [0, 32], brow: [0, -18], ...options.anchors };
   for (const key of Object.keys(anchors) as AnchorKind[]) anchors[key] = fromTrain(anchors[key]);
+  const collar = options.collar;
+  const scarfMatrix: Matrix | undefined = collar && [collar.width, 0, 0, 1, collar.center[0] * SCALE, (collar.center[1] - 32) * SCALE];
 
   return {
     palette: { fur: options.fur, furDark: options.furDark, accent: options.accent ?? "#f3e7cc", ink: "#3f4d40", cream: "#fffcf3", blush: "#cf9f89", nose: "#495043", line: "#655c4b" },
-    face, anchors, mouth: fromTrain(options.mouth ?? [0, 17]),
+    face, anchors, mouth: fromTrain(options.mouth ?? [0, 17]), coatProfile: options.coatProfile, scarfMatrix,
     shapes: [
       ...(options.back ?? []),
-      oval("body", 0, 27, 15, 10, "fur", true),
-      oval("body", 0, 55, 27, 29, "fur", true),
+      ...(options.body ?? [oval("body", 0, 27, 15, 10, "fur", true), oval("body", 0, 55, 27, 29, "fur", true)]),
       ...(options.bodyDetails ?? []),
-      ...pair("paws", 15, 77, 12, 7, options.feet ?? limbs, true),
-      oval("arm", -29, 45, 9, 17, limbs, true, 22),
-      { ...path("arm", "M19 39C29 35 36 32 35 24C33 16 35 10 41 10C48 10 51 18 50 25C49 40 38 48 24 54Z", limbs, true), motion: "paw" },
+      ...(options.paws ?? pair("paws", 15, 77, 12, 7, options.feet ?? limbs, true)),
+      ...(options.arms ?? [
+        oval("arm", -29, 45, 9, 17, limbs, true, 22),
+        waving(path("arm", "M19 39C29 35 36 32 35 24C33 16 35 10 41 10C48 10 51 18 50 25C49 40 38 48 24 54Z", limbs, true)),
+      ]),
       ...(options.ears ?? []),
       ...options.head,
       ...(options.details ?? []),

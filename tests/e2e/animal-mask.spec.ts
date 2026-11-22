@@ -4,10 +4,10 @@ import { autoBrushRadius, planAutoStrokes } from "../../src/bath/autoStroke";
 import { createGrid, progress, stampSegment } from "../../src/bath/coverage";
 import { brushRadius, CLASSIC_STEPS, STEPS } from "../../src/bath/steps";
 
-test("SVG i maska siatki wszystkich 20 zwierzątek mają IoU co najmniej 0,97", async ({ page }) => {
+test("SVG i maska siatki wszystkich 36 zwierzątek mają IoU co najmniej 0,97", async ({ page }) => {
   await page.goto("./?test=1&gallery=animals&mask=1");
   const tiles = page.locator("[data-gallery-animal]");
-  await expect(tiles).toHaveCount(20);
+  await expect(tiles).toHaveCount(ANIMAL_IDS.length);
   const scores = await tiles.evaluateAll(async (nodes) => {
     // Read pixels only in this test. The rendered SVG and actual runtime grid are independent inputs.
     const canvas = document.createElement("canvas");
@@ -55,16 +55,16 @@ test("SVG i maska siatki wszystkich 20 zwierzątek mają IoU co najmniej 0,97", 
   });
   expect(scores.map(({ id }) => id)).toEqual([...ANIMAL_IDS]);
   for (const { id, iou, outside, uncovered } of scores) {
-    expect(iou, id).toBeGreaterThanOrEqual(0.97);
-    expect(outside, id).toBe(false);
-    expect(uncovered, id).toBeLessThanOrEqual(3); // tolerancja antyaliasingu na granicy kształtu
+    expect.soft(iou, `${id}: IoU`).toBeGreaterThanOrEqual(0.97);
+    expect.soft(outside, `${id}: kształt poza obszarem`).toBe(false);
+    expect.soft(uncovered, `${id}: detale poza maską`).toBeLessThanOrEqual(3); // tolerancja antyaliasingu na granicy kształtu
   }
 });
 
 test("pasy trybu jednoprzyciskowego nadają się do całej rodziny", async ({ page }) => {
   await page.goto("./?test=1&gallery=animals&mask=1");
   const masks = await page.locator("[data-mask-for]").allTextContents();
-  expect(masks).toHaveLength(20);
+  expect(masks).toHaveLength(ANIMAL_IDS.length);
   for (const [index, cells] of masks.entries()) {
     const mask = Uint8Array.from(cells, Number);
     for (const kind of CLASSIC_STEPS) {

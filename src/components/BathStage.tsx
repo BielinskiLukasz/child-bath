@@ -56,11 +56,11 @@ interface Props {
 }
 
 export function BathStage({ ref, session, state, animal, dispatch, latch, reduced, onAutoBusy, Preview }: Props) {
-  const { pace, ease, oneButton, seed } = session;
+  const { pace, ease, oneButton, seed, allowedAnimals } = session;
   const particleLimit = reduced ? REDUCED_PARTICLE_LIMIT : undefined;
   const fxRng = useMemo(() => createRng(seed ^ 0x5bd1e995), [seed]);
   const nextSeed = useMemo(() => createRng(state.animalSeed ^ 0x6d2b79f5).int(1, MAX_SEED), [state.animalSeed]);
-  const nextAnimal = useMemo(() => pickAnimal(nextSeed, animal.id), [nextSeed, animal.id]);
+  const nextAnimal = useMemo(() => pickAnimal(nextSeed, animal.id, allowedAnimals), [nextSeed, animal.id, allowedAnimals]);
   const stageRef = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState({ width: 0, height: 0 });
   useLayoutEffect(() => {

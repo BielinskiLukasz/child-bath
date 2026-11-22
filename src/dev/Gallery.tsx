@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ANCHOR_KINDS, type AnimalDef, type AnimalGroup, type AnimalMood, type ReactionKind } from "../animals/types";
 import { ANIMALS, ANIMALS_BY_ID, isAnimalId } from "../animals/roster";
-import { ANIMAL_GROUPS, COAT_LABELS } from "../animals/traits";
+import { ANIMAL_GROUPS, COAT_LABELS, isAnimalGroup } from "../animals/traits";
 import { ANIMAL_STATES, STATE_LABELS, type AnimalState } from "../animals/states";
 import { DECOR_IDS, decorAnchor } from "../animals/anchors";
 import { VIEWBOX } from "../animals/geometry/template";
@@ -32,11 +32,16 @@ function InspectAnimal(props: AnimalSvgProps & { showAnchors: boolean }) {
 
 export function Gallery() {
   const [params] = useState(() => readSessionParams());
+  const [still] = useState(() => new URLSearchParams(window.location.search).get("still") === "1");
   const [state, setState] = useState<AnimalState>("clean");
-  const [filter, setFilter] = useState<AnimalGroup | "all">("all");
+  const [filter, setFilter] = useState<AnimalGroup | "all">(() => {
+    const group = new URLSearchParams(window.location.search).get("group");
+    return isAnimalGroup(group) ? group : "all";
+  });
   const [selection, setSelection] = useState<AnimalDef>(params.animal ? ANIMALS_BY_ID[params.animal] : ANIMALS_BY_ID.frog);
   const [mood, setMood] = useState<AnimalMood>("cheerful");
   const [showAnchors, setShowAnchors] = useState(false);
+  const [showLabels, setShowLabels] = useState(true);
   const [run, setRun] = useState<ReactionRun | null>(null);
   const [suppressed, setSuppressed] = useState(false);
   const [hidden, setHidden] = useState(() => document.hidden);
@@ -67,6 +72,7 @@ export function Gallery() {
   }
 
   function react(kind: ReactionKind) {
+    if (still) return;
     const accepted = player.playReaction(kind, params.pace, reduced);
     if (!accepted) return;
     setSuppressed(false);
@@ -75,11 +81,11 @@ export function Gallery() {
   }
 
   return (
-    <main className="animal-gallery" data-paused={String(hidden)}>
+    <main className="animal-gallery" data-paused={String(still || hidden)} data-still={String(still)}>
       <div className="gallery-inner">
         <header className="gallery-header">
           <a href="?" className="gallery-back"><span aria-hidden="true">&larr;</span> Mała łazienka</a>
-          <p className="gallery-kicker">Przegląd postaci · Faza 4</p>
+          <p className="gallery-kicker">Przegląd postaci · Faza 5</p>
           <h1>Galeria zwierzątek</h1>
           <p>Porównaj wygląd całej rodziny i obejrzyj reakcje w powiększeniu.</p>
         </header>
@@ -92,12 +98,13 @@ export function Gallery() {
             <option value="all">Wszystkie · {ANIMALS.length}</option>
             {(Object.keys(ANIMAL_GROUPS) as AnimalGroup[]).map((group) => {
               const count = ANIMALS.filter((def) => def.group === group).length;
-              return <option key={group} value={group} disabled={!count}>{ANIMAL_GROUPS[group]}{count ? ` · ${count}` : " (Faza 5)"}</option>;
+              return <option key={group} value={group}>{ANIMAL_GROUPS[group]} · {count}</option>;
             })}
           </select></label>
         </div>
+        <label className="gallery-check gallery-roster-toggle"><input type="checkbox" checked={showLabels} onChange={(event) => setShowLabels(event.target.checked)} /> Pokaż podpisy postaci</label>
 
-        <ul className="gallery-grid" aria-label="Wybierz postać do podglądu">
+        <ul className="gallery-grid" aria-label="Wybierz postać do podglądu" data-count={visibleAnimals.length} data-labels={String(showLabels)}>
           {visibleAnimals.map((def) => <li key={def.id}>
             <button type="button" className="gallery-tile" data-gallery-animal={def.id} aria-pressed={selection === def}
               aria-label={`Obejrzyj: ${name(def)}`} disabled={Boolean(run)} onClick={() => choose(def.id, true)}>
@@ -126,9 +133,9 @@ export function Gallery() {
             <h3>Reakcje</h3>
             <div className="gallery-reactions">
               {selection.reactions.map((kind) => <button type="button" key={kind} data-play-reaction={kind}
-                aria-disabled={Boolean(run) || (reduced && !isFaceReaction(kind))} onClick={() => react(kind)}>{REACTIONS[kind].label}</button>)}
+                aria-disabled={still || Boolean(run) || (reduced && !isFaceReaction(kind))} onClick={() => react(kind)}>{REACTIONS[kind].label}</button>)}
             </div>
-            <p className="gallery-reaction-note" aria-live="polite">{run ? REACTIONS[run.kind].label : reduced ? "Ograniczony ruch: dostępna jest tylko mimika." : "Wybierz reakcję, aby ją odtworzyć."}</p>
+            <p className="gallery-reaction-note" aria-live="polite">{run ? REACTIONS[run.kind].label : still ? "Widok nieruchomy do zrzutów." : reduced ? "Ograniczony ruch: dostępna jest tylko mimika." : "Wybierz reakcję, aby ją odtworzyć."}</p>
             <label className="gallery-check"><input type="checkbox" checked={showAnchors} onChange={(event) => setShowAnchors(event.target.checked)} /> Pokaż kotwice ozdób</label>
             <details>
               <summary>Odmiana imienia</summary>

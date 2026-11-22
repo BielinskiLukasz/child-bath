@@ -25,6 +25,23 @@ const FORMS: Record<AnimalId, Entry> = {
   elephant: ["m", "Słoń", "Słonia", "Słoniowi", "Słonia", "Słoniem", "Słoniu"],
   panda: ["f", "Panda", "Pandy", "Pandzie", "Pandę", "Pandą", "Pandzie"],
   koala: ["m", "Koala", "Koali", "Koali", "Koalę", "Koalą", "Koali"],
+  capybara: ["f", "Kapibara", "Kapibary", "Kapibarze", "Kapibarę", "Kapibarą", "Kapibarze"],
+  penguin: ["m", "Pingwinek", "Pingwinka", "Pingwinkowi", "Pingwinka", "Pingwinkiem", "Pingwinku"],
+  otter: ["f", "Wydra", "Wydry", "Wydrze", "Wydrę", "Wydrą", "Wydrze"],
+  diplodocus: ["m", "Diplodok", "Diplodoka", "Diplodokowi", "Diplodoka", "Diplodokiem", "Diplodoku"],
+  triceratops: ["m", "Triceratops", "Triceratopsa", "Triceratopsowi", "Triceratopsa", "Triceratopsem", "Triceratopsie"],
+  stegosaurus: ["m", "Stegozaur", "Stegozaura", "Stegozaurowi", "Stegozaura", "Stegozaurem", "Stegozaurze"],
+  parasaurolophus: ["m", "Parazaurolof", "Parazaurolofa", "Parazaurolofowi", "Parazaurolofa", "Parazaurolofem", "Parazaurolofie"],
+  trex: ["m", "T-Rex", "T-Reksa", "T-Reksowi", "T-Reksa", "T-Reksem", "T-Reksie"],
+  dalmatian: ["m", "Dalmatyńczyk", "Dalmatyńczyka", "Dalmatyńczykowi", "Dalmatyńczyka", "Dalmatyńczykiem", "Dalmatyńczyku"],
+  dachshund: ["m", "Jamnik", "Jamnika", "Jamnikowi", "Jamnika", "Jamnikiem", "Jamniku"],
+  poodle: ["m", "Pudel", "Pudla", "Pudlowi", "Pudla", "Pudlem", "Pudlu"],
+  // PWN, Wielki słownik ortograficzny: „husky (pies) ndm”.
+  husky: ["m", "Husky", "Husky", "Husky", "Husky", "Husky", "Husky"],
+  bulldog: ["m", "Buldog", "Buldoga", "Buldogowi", "Buldoga", "Buldogiem", "Buldogu"],
+  persian: ["m", "Kotek perski", "Kotka perskiego", "Kotkowi perskiemu", "Kotka perskiego", "Kotkiem perskim", "Kotku perskim"],
+  siamese: ["m", "Kotek syjamski", "Kotka syjamskiego", "Kotkowi syjamskiemu", "Kotka syjamskiego", "Kotkiem syjamskim", "Kotku syjamskim"],
+  british: ["m", "Kotek brytyjski", "Kotka brytyjskiego", "Kotkowi brytyjskiemu", "Kotka brytyjskiego", "Kotkiem brytyjskim", "Kotku brytyjskim"],
 };
 
 export function grammarFor(id: AnimalId): { rodzaj: Rodzaj; names: NameForms } {

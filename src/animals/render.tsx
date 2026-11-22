@@ -35,11 +35,11 @@ function Parts({ def, shapes, wet = false }: { def: AnimalDef; shapes: readonly 
   ))}</>;
 }
 
-function CoatFinish({ def }: { def: AnimalDef }) {
+function CoatFinish({ def, clip }: { def: AnimalDef; clip: string }) {
   const look = COAT_LOOK[def.okrywa];
   const [headX, headY] = def.anchors.headTop;
   if (look === "fluffy" || look === "woolly") {
-    return <g data-part="extra" data-finish={look} className="animal-fluff">
+    return <g data-part="extra" data-finish={look} data-finish-profile={def.coatProfile} className="animal-fluff">
       {coatTufts(def).map(({ x, y, side, size }, i) => (
         <g key={i} transform={`translate(${x} ${y}) scale(${side * size} ${size})`}>
           <path d={look === "woolly" ? "M-0.6-1.25Q0.45-1.65 0.8-0.78Q1.7-0.5 1.13 0.26Q1.34 1.17 0.39 1.22L-0.68 0.78Z" : "M-0.75-1.1Q0.24-0.9 1.24-0.24L0.54 0.08Q1.08 0.5 0.91 0.87L-0.65 0.8Z"}
@@ -60,7 +60,7 @@ function CoatFinish({ def }: { def: AnimalDef }) {
     scaled: "M-9 8q4 4 8 0m3 0q4 4 8 0m-14 11q4 4 8 0",
     shell: "M-11 22q4-5 8-5m7 10q4-1 6-4",
   }[look];
-  return <g data-part="extra" data-finish={look} className="animal-gleam" opacity="0.75">
+  return <g data-part="extra" data-finish={look} className="animal-gleam" opacity="0.75" clipPath={`url(#${clip})`}>
     <path d={gleam} fill="none" stroke={def.palette.cream} strokeWidth="1.35" strokeLinecap="round" />
   </g>;
 }
@@ -98,7 +98,7 @@ export const AnimalSvg = memo(function AnimalSvg({
   const wet = state === "wet";
   const washed = state === "washed" || state === "robe" || state === "turban";
   const scarf = state === "scarf" || state === "robe" || state === "turban";
-  const kind = reaction && (!reduced || isFaceReaction(reaction.kind)) ? reaction.kind : undefined;
+  const kind = reaction && def.reactions.includes(reaction.kind) && (!reduced || isFaceReaction(reaction.kind)) ? reaction.kind : undefined;
   const closed = kind && isFaceReaction(kind);
   const [mouthX, mouthY] = def.mouth;
   const ornaments = surface && (state === "dirty" || wet);
@@ -107,14 +107,14 @@ export const AnimalSvg = memo(function AnimalSvg({
     <svg className="animal-svg" xmlns="http://www.w3.org/2000/svg" viewBox={viewBox}
       data-character={def.id} data-animal-state={state} data-coat={def.okrywa} data-mood={mood}
       aria-hidden="true" focusable="false">
-      {ornaments && <defs><clipPath id={clip}>
+      {(ornaments || (!fluff && washed) || kind === "shine") && <defs><clipPath id={clip}>
         {def.shapes.filter((shape) => shape.silhouette).map((shape, index) => <Geometry key={index} shape={shape} fill={def.palette.cream} />)}
       </clipPath></defs>}
       <g className="animal-figure" data-reaction={kind} data-finished={washed || undefined}
         style={kind && reaction ? { "--animal-reaction-time": `${reaction.seconds}s` } as CSSProperties : undefined}>
-        {fluff && (washed || kind === "fluff") && <CoatFinish def={def} />}
+        {fluff && (washed || kind === "fluff") && <CoatFinish def={def} clip={clip} />}
         <Parts def={def} shapes={def.shapes} wet={wet} />
-        {!fluff && (washed || kind === "ruffle") && <CoatFinish def={def} />}
+        {!fluff && (washed || kind === "ruffle") && <CoatFinish def={def} clip={clip} />}
         {ornaments && <g data-part="extra" className="animal-surface" clipPath={`url(#${clip})`}>
           {wet ? (
             <g className="animal-drops" fill={def.palette.cream} opacity="0.57">
@@ -129,12 +129,14 @@ export const AnimalSvg = memo(function AnimalSvg({
           <path d="M-3.4-0.6Q0 3.2 3.4-0.6" fill="none" stroke={def.palette.line} strokeWidth="0.9" strokeLinecap="round" />
         </g>}
         {kind === "yawn" && <g className="animal-yawn" data-part="face"><ellipse cx={mouthX} cy={mouthY} rx="2.2" ry="2.55" fill={def.palette.nose} /></g>}
-        {kind === "shine" && <g className="animal-reaction-shine" data-part="extra"><path d="M-8 22q4-4 8-4m3 8 3-1" fill="none" stroke={def.palette.cream} strokeWidth="1.4" strokeLinecap="round" /></g>}
+        {kind === "shine" && <g data-part="extra" clipPath={`url(#${clip})`}><path className="animal-reaction-shine" d="M-8 22q4-4 8-4m3 8 3-1" fill="none" stroke={def.palette.cream} strokeWidth="1.4" strokeLinecap="round" /></g>}
         {kind === "pawSplash" && <g className="animal-splash" data-part="extra" fill="#a6c8c7">
           <path d="M22 8q4 4 0 5-3-1 0-5Zm5-6q4 4 0 5-3-1 0-5Z" />
         </g>}
         <BathClothes def={def} state={state} />
-        {scarf && <g data-part="scarf" opacity={scarfOpacity}><Geometry shape={SCARF} fill={SCARF_COLORS[def.scarf]} /></g>}
+        {scarf && <g data-part="scarf" opacity={scarfOpacity} transform={def.scarfMatrix && `matrix(${def.scarfMatrix.join(" ")})`}>
+          <Geometry shape={SCARF} fill={SCARF_COLORS[def.scarf]} />
+        </g>}
       </g>
     </svg>
   );

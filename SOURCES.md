@@ -43,6 +43,11 @@ Każdy plik przeniesiony w całości lub w części z innego repozytorium ma na 
 | `src/animals/species/woodland.ts` | child-train `src/components/illustration/Animal.tsx` | dziewięć leśnych sylwetek i ich palety |
 | `src/animals/species/familiar.ts` | child-train `src/components/illustration/Animal.tsx`, child-page `js/dogs.js` | pozostałe siedem postaci; dawny Kotek to Dachowiec, a Piesek to Labrador z paletą rasową |
 | `src/animals/species/visitors.ts` | child-page `js/animals.js` | Lew, Słoń, Panda i Koala przerysowani we wspólnym szablonie |
+| `src/animals/species/dalmatian.ts` | child-page `js/dogs.js` | kremowe futro, opadające uszy i siedem łat w widoku frontalnym |
+| `src/animals/species/dachshund.ts` | child-page `js/dogs.js` | niski tułów, długie uszy i paleta Jamnika w widoku frontalnym |
+| `src/animals/species/poodle.ts` | child-page `js/dogs.js` | paleta i pompony Pudla w widoku frontalnym |
+| `src/animals/species/husky.ts` | child-page `js/dogs.js` | paleta, stojące uszy, maska i zawinięty ogon w widoku frontalnym |
+| `src/animals/species/bulldog.ts` | child-page `js/dogs.js` | paleta, złożone uszy i krótki ogon Buldoga w widoku frontalnym |
 | `src/hooks/useBathClock.ts` | child-page `js/kapiel.js` (`frame`, `start`, `onVis`) | hook Reacta; `tick` zwraca, czy coś trwa, `wake()` budzi pętlę |
 | `src/hooks/useScrub.ts` | child-page `js/kapiel.js` (`down`, `move`, `up`, `toLogical`) | hook Reacta, zdarzenia scalone, kursor myszy bez wciśnięcia |
 | `src/input/keyboardBrush.ts` | child-page `js/kapiel.js` (`brushTo`, `onKey`) | czysta obsługa strzałek i zygzaka w logicznych współrzędnych |

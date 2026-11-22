@@ -33,8 +33,8 @@ function BathGame() {
   const [testMode] = useState(() => isTestMode());
   const [params] = useState(() => readSessionParams());
   const { oneButton, pace } = params;
-  const [state, dispatch] = useReducer(bathReducer, params, ({ steps, seed, ease, animal }) =>
-    createBathState(steps, seed, ease, animal ?? pickAnimal(seed).id));
+  const [state, dispatch] = useReducer(bathReducer, params, ({ steps, seed, ease, animal, allowedAnimals }) =>
+    createBathState(steps, seed, ease, animal ?? pickAnimal(seed, undefined, allowedAnimals).id));
   const animal = ANIMALS_BY_ID[state.animalId];
   const [latch] = useState(createInputLatch);
   const [ready, setReady] = useState(true);

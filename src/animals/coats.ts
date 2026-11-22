@@ -27,7 +27,12 @@ export function coatTufts(def: AnimalDef): readonly Tuft[] {
   const points: Tuft[] = [];
   const mask = insideMask(def);
   const wool = def.okrywa === "welna";
-  const rows = wool ? [28, 33, 38, 44, 56, 63, 69, 73] : [34, 40, 46, 61, 69];
+  const plush = def.coatProfile === "plush";
+  const pompons = def.coatProfile === "pompons";
+  const rows = plush ? [27, 31, 35, 39, 43, 47, 51, 55, 60, 65, 70, 74]
+    : pompons ? [22, 26, 31, 36, 61, 68, 72, 76]
+    : wool ? [28, 33, 38, 44, 56, 63, 69, 73] : [34, 40, 46, 61, 69];
+  const size = plush ? 2.95 : pompons ? 3.15 : wool ? 2.65 : 1.75;
   for (const row of rows) {
     if (row >= GRID_ROWS) continue;
     let lo = GRID_COLS, hi = -1;
@@ -38,8 +43,8 @@ export function coatTufts(def: AnimalDef): readonly Tuft[] {
     }
     if (hi - lo < 8) continue;
     points.push(
-      { x: VIEWBOX.x + lo + 0.8, y: VIEWBOX.y + row + 0.5, side: -1, size: wool ? 2.65 : 1.75 },
-      { x: VIEWBOX.x + hi + 0.15, y: VIEWBOX.y + row + 0.5, side: 1, size: wool ? 2.65 : 1.75 },
+      { x: VIEWBOX.x + lo + 0.8, y: VIEWBOX.y + row + 0.5, side: -1, size },
+      { x: VIEWBOX.x + hi + 0.15, y: VIEWBOX.y + row + 0.5, side: 1, size },
     );
   }
   tuftCache.set(def, points);

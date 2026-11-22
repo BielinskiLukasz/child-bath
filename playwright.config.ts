@@ -43,6 +43,12 @@ export default defineConfig({
       testDir: "./tests/e2e",
       use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } },
     },
+    {
+      name: "visual",
+      testDir: "./tests/visual",
+      snapshotPathTemplate: "{testDir}/__screenshots__/{arg}{ext}",
+      use: { ...devices["Desktop Chrome"], locale: "pl-PL", viewport: { width: 740, height: 940 }, deviceScaleFactor: 1 },
+    },
   ],
   webServer: {
     // CI testuje gotowy dist/, który po sukcesie będzie opublikowany. Lokalnie npm test nadal buduje aplikację.

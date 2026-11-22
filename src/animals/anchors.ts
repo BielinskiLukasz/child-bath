@@ -18,6 +18,16 @@ const OVERRIDES: Partial<Record<AnimalId, Partial<DecorAnchors>>> = {
   elephant: { bow: "earRight" },
   lion: { straw_hat: null },
   turtle: { bow: null, flower: null },
+  penguin: { bow: "earRight" },
+  otter: { bow: "earRight" },
+  diplodocus: { crown: null, straw_hat: null },
+  triceratops: { party_hat: null, crown: null, towel_turban: null, pompom_hat: null },
+  parasaurolophus: { party_hat: null, straw_hat: null, towel_turban: null, pompom_hat: null, crown: null, bow: "earRight" },
+  dachshund: { bow: "earRight" },
+  poodle: { party_hat: null },
+  husky: { straw_hat: null, pompom_hat: null },
+  persian: { bow: "earRight" },
+  siamese: { straw_hat: null },
 };
 
 export const DECOR_COMPATIBILITY = Object.fromEntries(ANIMALS.map(({ id }) => [id, { ...DECOR, ...OVERRIDES[id] }])) as Readonly<Record<AnimalId, DecorAnchors>>;

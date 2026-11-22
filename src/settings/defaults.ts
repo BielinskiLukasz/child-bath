@@ -1,3 +1,4 @@
+import { ANIMAL_IDS, type AnimalId } from "../animals/types";
 import { CLASSIC_STEPS, type EaseKey, type StepKind } from "../bath/steps";
 
 export const PACES = [1.45, 1.2, 1, 0.8] as const;
@@ -7,7 +8,7 @@ type Slots = readonly [string, string, string];
 /** Kontrakt ustawień z PROJECT.md 12.4. W Fazie 3 używamy tylko ustawień sterowania i rytuału roboczego. */
 export interface BathSettings {
   childName: string;
-  allowedAnimals: readonly string[];
+  allowedAnimals: readonly AnimalId[];
   allowedSceneries: readonly string[];
   allowedDirt: readonly string[];
   planner: { animals: Slots; scenery: string; dirt: Slots };
@@ -29,8 +30,7 @@ export interface BathSettings {
 
 export const DEFAULT_BATH_SETTINGS: Readonly<BathSettings> = {
   childName: "dziecka",
-  // Katalogi gatunków, scenerii i śladów zostaną podpięte w późniejszych fazach.
-  allowedAnimals: [], allowedSceneries: [], allowedDirt: [],
+  allowedAnimals: ANIMAL_IDS, allowedSceneries: [], allowedDirt: [],
   planner: { animals: ["random", "random", "random"], scenery: "random", dirt: ["random", "random", "random"] },
   weights: {}, ritual: { preset: "classic", steps: CLASSIC_STEPS },
   ease: "normal", oneButton: false, extendedTouch: false, pace: 1,

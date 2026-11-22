@@ -22,7 +22,7 @@ function shapePath(shape: Shape): Path2D {
   return path;
 }
 
-/** The same matrices as the SVG, with the viewBox mapped to bath coordinates. */
+/** The same matrices as the SVG. Clockwise filled contours add together under the nonzero rule. */
 export function silhouettePath(def: AnimalDef): Path2D {
   const cached = paths.get(def);
   if (cached) return cached;

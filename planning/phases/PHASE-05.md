@@ -1,7 +1,7 @@
 ---
 phase: 05-menazeria
 name: Menażeria
-status: not-started
+status: in-progress
 depends_on: [04-postacie]
 requirements: [REQ-30, REQ-31, REQ-32]
 clarifications: [DP-2, DP-5]
@@ -171,7 +171,7 @@ Kapibara i Wydra trafiają do grup zgodnie z `PROJECT.md` 8.1: Wydra do „Leśn
 
 | # | Kryterium (ROADMAP) | Jak sprawdzamy |
 |---|---|---|
-| 1 | 16 nowych zwierząt z kompletem danych | lista kontrolna + `roster.spec.ts` + kąpiel w `bath.spec.ts` |
+| 1 | 16 nowych zwierząt z kompletem danych | `roster.spec.ts`, `animal-mask.spec.ts` i `animals-bath.spec.ts` |
 | 2 | Rasy rozpoznawalne z przodu, psy z ≥ 3 reakcjami | przegląd + `traits` |
 | 3 | T-Rex łagodny | przegląd + lista DP-5 |
 | 4 | Zatwierdzone zrzuty 36 zwierzątek | `menagerie.spec.ts` |
@@ -187,3 +187,7 @@ Kapibara i Wydra trafiają do grup zgodnie z `PROJECT.md` 8.1: Wydra do „Leśn
 - Faza 7 dostaje komplet imion i okryw dla 36 zwierzątek (narracja, krok 5).
 - Faza 10 buduje wykluczenia grupowe na `group` i pojedyncze wykluczenie T-Rexa.
 - Faza 12 utrzymuje zrzuty menażerii w regresji wizualnej.
+
+## Stan implementacji
+
+Kod, testy i referencje galerii znajdują się w głównym katalogu projektu. [Podsumowanie Fazy 5](PHASE-05-SUMMARY.md) opisuje pokrycie wymagań i miejsca do przeglądu. Do formalnego zamknięcia pozostaje CI dla tych zmian i akceptacja autora, w szczególności łagodności T-Reksa i rozpoznawalności ras na telefonie.

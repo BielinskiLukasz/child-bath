@@ -14,7 +14,7 @@ test("galeria porównuje stany, pokazuje kotwice i pozwala wykąpać konkretną 
   const gallery = page.locator(".animal-gallery");
   const inspector = gallery.locator(".gallery-inspector");
   await expect(gallery.getByRole("heading", { level: 1 })).toHaveText("Galeria zwierzątek");
-  await expect(page.locator("[data-gallery-animal]")).toHaveCount(20);
+  await expect(page.locator("[data-gallery-animal]")).toHaveCount(36);
   expect(await gallery.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
   expect(await gallery.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
   await gallery.getByLabel("Stan wszystkich postaci").selectOption("washed");
@@ -26,11 +26,14 @@ test("galeria porównuje stany, pokazuje kotwice i pozwala wykąpać konkretną 
   await expect(finish("hedgehog")).toHaveAttribute("data-finish", "spiny");
   await expect(finish("frog")).toHaveAttribute("data-finish", "smooth");
   expect(await finish("sheep").locator("path").count()).toBeGreaterThan(await finish("labrador").locator("path").count());
+  await expect(finish("poodle")).toHaveAttribute("data-finish-profile", "pompons");
+  await expect(finish("persian")).toHaveAttribute("data-finish-profile", "plush");
+  expect(await finish("persian").locator("path").count()).toBeGreaterThan(await finish("dachowiec").locator("path").count());
   // Pióra i połysk muszą leżeć na okrywie, a nie zostać przez nią zasłonięte.
   await expect(page.locator('[data-gallery-animal="turtle"] [data-silhouette] ~ [data-finish="shell"]')).toHaveCount(1);
   await expect(page.locator('[data-gallery-animal="owl"] [data-silhouette] ~ [data-finish="feathered"]')).toHaveCount(1);
   await gallery.getByLabel("Grupa", { exact: true }).selectOption("dalekie");
-  await expect(page.locator("[data-gallery-animal]")).toHaveCount(4);
+  await expect(page.locator("[data-gallery-animal]")).toHaveCount(6);
   await gallery.getByRole("button", { name: "Obejrzyj: Panda" }).click();
   await expect(inspector).toHaveAttribute("data-selected", "panda");
   await inspector.getByLabel("Pokaż kotwice ozdób").check();

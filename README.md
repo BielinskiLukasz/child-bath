@@ -4,7 +4,7 @@ Spokojna, cicha aplikacja PWA po polsku dla małego dziecka. Dziecko kąpie zwie
 
 Aplikacja powstaje najpierw z myślą o telefonie. Działa offline, bez dźwięku, reklam i wysyłania danych. Styl i rozwiązania techniczne pochodzą z [child-train](https://github.com/BielinskiLukasz/child-train), a mechanika kąpieli z aktywności „Kąpiel Zwierzątek” w [child-page](https://github.com/BielinskiLukasz/child-page).
 
-> **Stan: Faza 4 z 12 (postacie).** W kąpieli można spotkać 20 zwierzątek. Pierwsze i każde następne czeka na „Dalej” lub Enter. Dotyk, mysz i klawiatura prowadzą przez trzy kroki kąpieli. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 4](planning/phases/PHASE-04-SUMMARY.md).
+> **Stan: Faza 5 z 12 (menażeria).** W kąpieli można spotkać 36 zwierzątek, w tym pięć łagodnych dinozaurów. Pierwsze i każde następne czeka na „Dalej” lub Enter. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 5](planning/phases/PHASE-05-SUMMARY.md).
 
 ## Zasady
 
@@ -57,8 +57,9 @@ Przed `dev`, `build` i `test` ikony generują się automatycznie.
 
 Parametr `?test=1` pokazuje ramki stref oraz przykładową narrację. Tylko wtedy można nadpisać `seed`, `ease` (`easy`, `normal`, `precise`), `pace` i `oneButton`. `?test=1&layer=apply` uruchamia próbę nakładania warstwy; w zwykłej zabawie nadal są trzy kroki klasyczne.
 
-- **Galeria postaci:** `?test=1&gallery=animals`. Zmień stan całej rodziny, a potem wybierz zwierzątko, żeby obejrzeć reakcje, odmianę imienia i kotwice.
+- **Galeria postaci:** `?test=1&gallery=animals`. Można filtrować pięć grup, porównać stany i ukryć podpisy. Wybierz postać, aby obejrzeć reakcje, odmianę i kotwice. `&group=dinozaury` otwiera konkretną grupę, a `&still=1` zatrzymuje ruch na potrzeby zrzutów.
 - **Kąpiel konkretnego zwierzątka:** `?test=1&animal=labrador` albo przycisk „Wykąp” w galerii. W zwykłej grze wybór jest losowany z ziarnem, bez powtórzeń z rzędu.
+- **Próba wykluczeń:** `?test=1&excludeAnimal=trex` wyklucza T-Reksa; `?test=1&excludeGroup=dinozaury` wyklucza całą grupę. Parametry można łączyć. Błędne wykluczenie albo pula mniejsza niż cztery postacie przywraca pełną listę. Panel rodzica dojdzie w Fazie 10.
 
 ## Offline i PWA
 
@@ -76,6 +77,9 @@ Testy są w Playwright, jak w child-train. Serwer testowy buduje aplikację i se
 | `phone` | Pixel 7 (`tests/e2e`) |
 | `small` | 360 × 640, dotyk (`tests/e2e`) |
 | `desktop` | 1280 × 800 (`tests/e2e`) |
+| `visual` | porównanie 20 referencji galerii na Linuksie (`tests/visual`) |
+
+Zrzuty pokazują każdą z pięciu grup w czterech stanach. Po zaakceptowanej zmianie rysunku można je odświeżyć przez `npm test -- --project=visual --update-snapshots=all` w Chromium na Linuksie.
 
 Testy strażnicze z Fazy 1 sprawdzają:
 
@@ -112,7 +116,7 @@ child-bath/
 │  ├─ styles/              tokens, layout, scene, responsive
 │  ├─ fonts.css            fonty osadzone jako data URL (generowane)
 │  └─ assets/licenses/     licencje SIL OFL fontów
-├─ tests/                  unit/ i e2e/ (Playwright)
+├─ tests/                  unit/, e2e/ i visual/ (Playwright)
 ├─ tools/                  generate-icons.py, build-fonts.py
 └─ planning/               plan projektu (PROJECT, ROADMAP, phases)
 ```

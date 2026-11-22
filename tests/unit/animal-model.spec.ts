@@ -3,9 +3,7 @@ import { ANIMALS, ANIMALS_BY_ID, isAnimalId, pickAnimal } from "../../src/animal
 import { ANIMAL_GROUPS, finishingAction } from "../../src/animals/traits";
 import { COAT_LOOK, mixTone } from "../../src/animals/coats";
 
-test("20 rozpoznawalnych definicji, grupy, kształty i paleta", () => {
-  expect(ANIMALS).toHaveLength(20);
-  expect(new Set(ANIMALS.map((animal) => animal.id)).size).toBe(20);
+test("Kształty, paleta i części modelu są prawidłowe dla całej rodziny", () => {
   expect(Object.keys(ANIMAL_GROUPS)).toHaveLength(5);
   expect(ANIMALS_BY_ID.labrador.palette).toMatchObject({ fur: "#e8c27a", furDark: "#c9a05a", accent: "#f3dcab" });
   expect(ANIMALS_BY_ID.dachowiec.palette.fur).toBe("#e2bc8d");
@@ -28,7 +26,7 @@ test("20 rozpoznawalnych definicji, grupy, kształty i paleta", () => {
       if (shape.silhouette) expect(shape.stroke).toBeUndefined();
     }
   }
-  expect(ANIMALS.filter(({ face }) => face === "custom").map(({ id }) => id)).toEqual(["owl", "duck", "sheep", "turtle"]);
+  expect(ANIMALS.filter(({ face }) => face === "custom").map(({ id }) => id)).toEqual(["owl", "duck", "sheep", "turtle", "penguin"]);
 });
 
 test("losowanie z ziarnem nie powtarza postaci bezpośrednio", () => {
@@ -36,12 +34,12 @@ test("losowanie z ziarnem nie powtarza postaci bezpośrednio", () => {
   expect(isAnimalId("frog")).toBe(true);
   const draws = (n: number) => {
     const ids = [pickAnimal(n).id];
-    for (let i = 1; i < 120; i++) ids.push(pickAnimal(n + i * 317, ids[i - 1]).id);
+    for (let i = 1; i < 600; i++) ids.push(pickAnimal(n + i * 317, ids[i - 1]).id);
     return ids;
   };
   const sequence = draws(12);
   expect(sequence).toEqual(draws(12));
-  expect(new Set(sequence).size).toBe(20);
+  expect(new Set(sequence).size).toBe(ANIMALS.length);
   expect(sequence.slice(1).every((id, i) => id !== sequence[i])).toBe(true);
 });
 

@@ -1,6 +1,8 @@
 export const ANIMAL_IDS = [
   "rabbit", "fox", "bear", "hedgehog", "owl", "squirrel", "dachowiec", "labrador", "frog", "badger",
   "deer", "mouse", "duck", "sheep", "pig", "turtle", "lion", "elephant", "panda", "koala",
+  "capybara", "penguin", "otter", "diplodocus", "triceratops", "stegosaurus", "parasaurolophus", "trex",
+  "dalmatian", "dachshund", "poodle", "husky", "bulldog", "persian", "siamese", "british",
 ] as const;
 export type AnimalId = (typeof ANIMAL_IDS)[number];
 export type Okrywa = "futro" | "welna" | "piora" | "kolce" | "skora" | "luski" | "skorupa";
@@ -43,6 +45,8 @@ export interface AnimalRig {
   face: "shared" | "custom";
   anchors: Readonly<Record<AnchorKind, Point>>;
   mouth: Point;
+  coatProfile?: "plush" | "pompons";
+  scarfMatrix?: Matrix;
 }
 
 export interface AnimalDef extends AnimalRig {

@@ -60,7 +60,7 @@ test("dist/index.html działa z dysku bez sieci, z osadzonymi fontami i ich lice
   const gallery = pathToFileURL(standalone);
   gallery.search = "test=1&gallery=animals";
   await page.goto(gallery.href);
-  await expect(page.locator("[data-gallery-animal]")).toHaveCount(20);
+  await expect(page.locator("[data-gallery-animal]")).toHaveCount(36);
   await page.locator('[data-gallery-animal="elephant"]').click();
   await page.getByRole("link", { name: /Wykąp Słonia/ }).click();
   await expect(page.locator(".bath-stage")).toHaveAttribute("data-animal", "elephant");
