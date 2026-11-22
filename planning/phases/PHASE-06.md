@@ -1,7 +1,7 @@
 ---
 phase: 06-swiat
 name: Świat
-status: not-started
+status: in-progress
 depends_on: [02-silnik-kapieli]
 requirements: [REQ-39, REQ-40, REQ-41, REQ-42, REQ-43, REQ-44, REQ-45]
 clarifications: []
@@ -206,3 +206,7 @@ export interface SceneryDef {
 - Faza 7 korzysta z narzędzi wody (krok płukania) i porannego lub wieczornego kontekstu (reakcja `yawn`).
 - Faza 8 sadza zwierzątka na miejscach `layout.bench` i używa `layout.door`, przenikania oraz `nextRound`.
 - Faza 10 podpina ustawienia stałe pogody, pory dnia i pory roku oraz przypięcie scenerii.
+
+## Stan implementacji
+
+Sześć scenerii i atmosfera są zaimplementowane w głównym katalogu. Pełna logika rundy wciąż czeka na Fazę 8; zmianę rundy można obejrzeć przez testowy hak `window.__bath.nextRound()`. Plaża i zimowa łaźnia nie zostały włączone przed decyzją autora. [Podsumowanie Fazy 6](PHASE-06-SUMMARY.md) zawiera wyniki, zrzuty i listę do przeglądu na telefonie.

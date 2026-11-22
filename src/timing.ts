@@ -3,6 +3,11 @@
  * Wartości przejść pochodzą z aktywności „Kąpiel Zwierzątek” w child-page (IN_S, REST_S, BUBBLE_S, SPAWN_GAP_S).
  */
 export const TIMING = {
+  worldHourSeconds: 120,
+  worldFps: 24,
+  worldWeatherFade: 8,
+  worldSeasonFade: 3,
+  sceneryFade: 1.2,
   arriving: 0.8,
   toBench: 0.8,
   autoStroke: 1.2,

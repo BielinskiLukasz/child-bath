@@ -4,7 +4,7 @@ Spokojna, cicha aplikacja PWA po polsku dla małego dziecka. Dziecko kąpie zwie
 
 Aplikacja powstaje najpierw z myślą o telefonie. Działa offline, bez dźwięku, reklam i wysyłania danych. Styl i rozwiązania techniczne pochodzą z [child-train](https://github.com/BielinskiLukasz/child-train), a mechanika kąpieli z aktywności „Kąpiel Zwierzątek” w [child-page](https://github.com/BielinskiLukasz/child-page).
 
-> **Stan: Faza 5 z 12 (menażeria).** W kąpieli można spotkać 36 zwierzątek, w tym pięć łagodnych dinozaurów. Pierwsze i każde następne czeka na „Dalej” lub Enter. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 5](planning/phases/PHASE-05-SUMMARY.md).
+> **Stan: Faza 6 z 12 (świat).** Zabawa ma sześć scenerii z pogodą i porami dnia, a do kąpieli przychodzi 36 zwierzątek. Pierwsze i każde następne czeka na „Dalej” lub Enter. Plan: [`planning/ROADMAP.md`](planning/ROADMAP.md), [wyniki Fazy 6](planning/phases/PHASE-06-SUMMARY.md).
 
 ## Zasady
 
@@ -60,6 +60,9 @@ Parametr `?test=1` pokazuje ramki stref oraz przykładową narrację. Tylko wted
 - **Galeria postaci:** `?test=1&gallery=animals`. Można filtrować pięć grup, porównać stany i ukryć podpisy. Wybierz postać, aby obejrzeć reakcje, odmianę i kotwice. `&group=dinozaury` otwiera konkretną grupę, a `&still=1` zatrzymuje ruch na potrzeby zrzutów.
 - **Kąpiel konkretnego zwierzątka:** `?test=1&animal=labrador` albo przycisk „Wykąp” w galerii. W zwykłej grze wybór jest losowany z ziarnem, bez powtórzeń z rzędu.
 - **Próba wykluczeń:** `?test=1&excludeAnimal=trex` wyklucza T-Reksa; `?test=1&excludeGroup=dinozaury` wyklucza całą grupę. Parametry można łączyć. Błędne wykluczenie albo pula mniejsza niż cztery postacie przywraca pełną listę. Panel rodzica dojdzie w Fazie 10.
+- **Scenerie:** `?test=1&scenery=bathroom` przypina łazienkę. Inne identyfikatory: `garden`, `forest_spring`, `mountain_tub`, `jetty`, `lavender_spa`.
+- **Atmosfera:** `&time=dawn|day|dusk|night`, `&weather=clear|rain|snow|fog` i `&season=spring|summer|autumn|winter` to ustawienia stałe. `&hour=17.5` ustawia godzinę początkową bez zatrzymywania zegara. `&still=1` zatrzymuje scenerię do zrzutu i ukrywa ramki.
+- **Próba rundy:** w konsoli przeglądarki `window.__bath.nextRound()` (tylko w trybie testowym, bez `still=1`) pokazuje przenikanie scenerii oraz zmianę pogody i sezonu. Logika rund z obsadzaniem ławki dojdzie w Fazie 8.
 
 ## Offline i PWA
 
@@ -110,7 +113,8 @@ child-bath/
 ├─ public/                 manifest.json, sw.js, icons/*.svg (PNG generuje narzędzie)
 ├─ src/
 │  ├─ main.tsx, App.tsx    montowanie aplikacji i cztery strefy ekranu
-│  ├─ components/          illustration/PlaceholderTub.tsx (szkic łazienki z Fazy 1)
+│  ├─ components/          scena, narzędzia, ruch i sterowanie kąpielą
+│  ├─ world/               scenerie, geometria, atmosfera i zegar świata
 │  ├─ pwa/                 rejestracja service workera
 │  ├─ settings/            tryb testowy
 │  ├─ styles/              tokens, layout, scene, responsive

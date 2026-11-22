@@ -29,12 +29,14 @@
 .bath-particle--bubble { fill: var(--foam, #fffcf3); fill-opacity: 0.55; stroke: var(--water-light); stroke-width: 1.2; }
 .bath-particle--drop { fill: var(--water, #a6c8c7); }
 .bath-tools { overflow: visible; pointer-events: none; }
-.bath-shower, .tool-cursor { opacity: 0; transition: opacity var(--bath-tool-fade) ease; }
+.bath-shower, .bath-pour, .tool-cursor { opacity: 0; transition: opacity var(--bath-tool-fade) ease; }
 .bath-shower { fill: var(--water, #a6c8c7); transform-origin: 0 0; }
 .bath-tools[data-tool="rinse"] .bath-shower[data-visible="true"] { opacity: 0.46; }
+.bath-tools[data-tool="rinse"] .bath-pour[data-visible="true"] { opacity: .86; }
+.water-icon { overflow: visible; }
 .tool-footprint { fill: var(--foam, #fffcf3); fill-opacity: 0.25; }
 .tool-rim { fill: none; stroke: var(--foam, #fffcf3); stroke-opacity: 0.68; stroke-width: 1; }
 .tool-cursor[data-visible="true"] { opacity: 0.92; }
 .tool-cursor[data-keyboard="true"] .tool-rim { stroke: var(--ink); stroke-opacity: 1; stroke-width: 1.6; }
 .bath-box:not([data-phase="scrubbing"]) .tool-cursor,
-.bath-box:not([data-phase="scrubbing"]) .bath-tools[data-tool] .bath-shower { opacity: 0; }
+.bath-box:not([data-phase="scrubbing"]) .bath-tools[data-tool] :is(.bath-shower, .bath-pour) { opacity: 0; }

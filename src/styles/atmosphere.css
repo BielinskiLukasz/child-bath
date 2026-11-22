@@ -1,0 +1,159 @@
+/* Źródło: child-train@b881e09:src/atmosphere.css (pozycje i animacje pogody).
+   Dłuższy zanik deszczu i pauza wraz z zegarem świata. */
+.atmosphere-sun {
+  transform: translate(var(--sun-x, 1320px), var(--sun-y, 104px));
+  opacity: var(--sun-opacity);
+}
+
+.atmosphere-moon {
+  transform: translate(var(--moon-x, 800px), var(--moon-y, 120px));
+  opacity: var(--moon-opacity);
+}
+
+.atmosphere-stars {
+  opacity: var(--stars-opacity);
+}
+
+.atmosphere-rain {
+  opacity: var(--rain-opacity);
+}
+
+.atmosphere-snow {
+  opacity: var(--snow-opacity);
+}
+
+.atmosphere-fog {
+  opacity: var(--fog-opacity);
+}
+
+.atmosphere-night-veil {
+  opacity: var(--night-veil);
+}
+
+/* Moon phase: 0 is a crescent, ±78 is a full moon. Because both the hour and
+   minute hands land on the same visual angle at midnight, the daily wrap is
+   invisible. */
+.moon-shadow {
+  transform: translateX(var(--moon-phase-shift, 24px));
+}
+
+.atmosphere-weather,
+.atmosphere-stars,
+.atmosphere-moon,
+.atmosphere-sun {
+  pointer-events: none;
+}
+
+.sky-cloud {
+  opacity: var(--cloud-opacity);
+}
+
+.cloud {
+  fill: var(--cloud);
+}
+
+.rain-drop {
+  animation: atmosphere-rain-fall 3s linear infinite;
+}
+
+.snow-flake {
+  animation: atmosphere-snow-fall 13s linear infinite;
+}
+
+.fog-band {
+  animation: atmosphere-mist-drift 55s ease-in-out infinite alternate;
+  transform-origin: 800px 350px;
+}
+
+.fog-band--middle {
+  animation-delay: -18s;
+  animation-duration: 68s;
+}
+
+.fog-band--far {
+  animation-delay: -33s;
+  animation-duration: 82s;
+}
+
+.sky-star--soft {
+  animation: atmosphere-star-breathe 12s ease-in-out infinite alternate;
+}
+
+@keyframes atmosphere-rain-fall {
+  from {
+    transform: translate(-8px, -80px);
+    opacity: 0;
+  }
+  24% {
+    opacity: 0.7;
+  }
+  76% {
+    opacity: 0.7;
+  }
+  to {
+    transform: translate(18px, 1100px);
+    opacity: 0;
+  }
+}
+
+@keyframes atmosphere-snow-fall {
+  0% {
+    transform: translate(0, -40px);
+    opacity: 0;
+  }
+  12%,
+  82% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(var(--snow-drift, 30px), 350px);
+  }
+  100% {
+    transform: translate(12px, 1100px);
+    opacity: 0;
+  }
+}
+
+@keyframes atmosphere-mist-drift {
+  from {
+    transform: translateX(-80px) scaleX(1.05);
+  }
+  to {
+    transform: translateX(80px) scaleX(1.05);
+  }
+}
+
+@keyframes atmosphere-star-breathe {
+  from {
+    opacity: 0.65;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rain-drop,
+  .snow-flake,
+  .fog-band,
+  .sky-star--soft {
+    animation: none !important;
+  }
+  .rain-drop {
+    transform: translateY(250px);
+    opacity: 0.4;
+  }
+  .snow-flake {
+    transform: translateY(360px);
+    opacity: 0.65;
+  }
+
+}
+
+.world-clouds { opacity: calc(var(--cloud-opacity, 1) * 0.57); }
+.little-world:not([data-rain-active="true"]) .rain-drop,
+.little-world:not([data-snow-active="true"]) .snow-flake,
+.little-world:not([data-fog-active="true"]) .fog-band,
+.little-world:not([data-stars-active="true"]) .sky-star { animation-name: none; }
+.little-world[data-paused="true"] :is(.rain-drop, .snow-flake, .fog-band, .sky-star),
+.little-world[data-still="true"] :is(.rain-drop, .snow-flake, .fog-band, .sky-star) { animation-play-state: paused; }

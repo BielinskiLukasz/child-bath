@@ -67,7 +67,7 @@ async function setHidden(page: Page, hidden: boolean) {
 test("pocieranie myszą przechodzi trzy kroki, a potem kolejne zwierzątko czeka na Dalej", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await openBath(page, "./?test=1&seed=7&animal=bear&ease=easy");
+  await openBath(page, "./?test=1&seed=7&animal=bear&ease=easy&scenery=bathroom");
   const stage = page.locator(STAGE);
   await expect(stage).toHaveAttribute("data-animal", "bear");
 

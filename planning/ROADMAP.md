@@ -271,7 +271,7 @@ Zależności pozwalają też pracować równolegle (np. kilkoma agentami na osob
 | 3. Sterowanie i przejścia | 0/3 | Implementacja i testy lokalne gotowe; do zamknięcia: GitHub Actions i przegląd na urządzeniach | - |
 | 4. Postacie | 0/4 | Implementacja i testy lokalne gotowe; do zamknięcia: GitHub Actions i przegląd galerii | - |
 | 5. Menażeria | 0/4 | Implementacja gotowa; do zamknięcia: GitHub Actions i akceptacja referencji galerii | - |
-| 6. Świat | 0/4 | Not started | - |
+| 6. Świat | 0/4 | Zegar i 6 scenerii zaimplementowane; do zamknięcia: GitHub Actions i przegląd na telefonie | - |
 | 7. Rytuał i narracja | 0/4 | Not started | - |
 | 8. Runda i nagroda | 0/3 | Not started | - |
 | 9. Rozszerzona interakcja | 0/2 | Not started | - |

@@ -1,12 +1,5 @@
 /* Faza 3: papierowa wnęka, zapowiedź i stały przycisk w strefie akcji. */
-.bath-door,
 .door-preview-animal { position: absolute; pointer-events: none; }
-.bath-door { overflow: visible; }
-.bath-door__mat { fill: var(--wood-dark); opacity: 0.2; }
-.bath-door__frame, .bath-door__step { fill: var(--wood-dark); }
-.bath-door__alcove { fill: var(--ink); }
-.bath-door__panel { fill: var(--towel-sage); opacity: 0.67; }
-.bath-door__knob { fill: var(--lamp); }
 .door-preview-animal { z-index: 1; transform-origin: top left; }
 .door-preview-animal__fade {
   width: 100%;
@@ -49,6 +42,7 @@
   border-radius: inherit;
   background: var(--tile-a);
 }
+.little-world:is([data-time-of-day="dusk"], [data-time-of-day="night"]) .bath-control::before { background: #b4c5b8; }
 .bath-control[aria-disabled="false"]::before {
   animation: bath-invitation var(--invitation-breath) ease-in-out infinite;
 }

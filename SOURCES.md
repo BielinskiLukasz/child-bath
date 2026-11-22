@@ -26,6 +26,12 @@ Każdy plik przeniesiony w całości lub w części z innego repozytorium ma na 
 | `src/fonts.css` | child-train `src/fonts.css` | te same podzbiory Latin i Latin Extended, z adnotacją źródła |
 | `src/styles/tokens.css` | child-train `src/styles/tokens.css` | kolory jako zmienne motywu, tokeny łazienki |
 | `src/styles/layout.css` | child-train `src/styles/tokens.css` (`.little-world`, ziarno papieru) | siatka czterech stref, stały rozmiar kafla szumu |
+| `src/world/atmosphere.ts` | child-train `src/atmosphere.ts` | palety, pozycje ciał niebieskich i pogoda dla zegara kąpieli |
+| `src/hooks/useAtmosphere.ts` | child-train `src/hooks/useAtmosphere.ts` | zmienne motywu i limit częstotliwości malowania dla aktywnej kąpieli |
+| `src/components/Atmosphere.tsx` | child-train `src/components/Atmosphere.tsx` | niebo i pogoda, osobne identyfikatory SVG w każdej warstwie |
+| `src/styles/atmosphere.css` | child-train `src/atmosphere.css` | animacje pogody i słońca, dłuższe wygaszanie deszczu |
+| `src/world/sceneries/landscapeProps.tsx` | child-train `src/components/illustration/Scenery.tsx` | drzewa, sosny, domki, pomost, lawenda i żaglówka |
+| `src/components/illustration/WallClock.tsx` | child-train `src/components/illustration/Station.tsx` | łazienkowa tarcza i wskazówki według godziny symulacji |
 | `src/assets/licenses/dm-sans.txt` | child-train `src/assets/licenses/dm-sans.txt` | bez zmian |
 | `src/assets/licenses/fraunces.txt` | child-train `src/assets/licenses/fraunces.txt` | bez zmian |
 | `public/manifest.json` | child-train `public/manifest.json` | nazwy, opis, `id`, kategorie, ikona SVG |
@@ -35,6 +41,7 @@ Każdy plik przeniesiony w całości lub w części z innego repozytorium ma na 
 | `.github/workflows/checks.yml` | child-train `.github/workflows/deploy.yml` | artefakt Pages z przetestowanego `dist/` i zależne wywołanie `deploy.yml` |
 | `.github/workflows/deploy.yml` | child-train `.github/workflows/deploy.yml` | sam deploy w trybie `workflow_call`, bez własnego wyzwalacza `push` |
 | `tests/e2e/pwa.spec.ts` | child-train `tests/pwa.spec.ts` | ścieżki pod `/child-bath/`, selektory stref, test manifestu i rozmiarów ikon |
+| `tests/e2e/atmosphere.spec.ts` | child-train `tests/atmosphere.spec.ts` | próby zegara podczas aktywnej kąpieli, ukrycia karty i opadów za oknem |
 | `src/bath/steps.ts` | child-page `js/kapiel.js` (`BRUSH`, min. 44 px, `DONE_AT`) | pięć kroków, tryb zmywania lub nakładania, łatwość 80 / 90 / 95% |
 | `src/bath/layers.ts` | child-page `js/kapiel.js` (`drawLayer`, `erase`) | paleta child-train, losowanie z ziarnem, kropka dla pojedynczego dotyku |
 | `src/bath/particles.ts` | child-page `js/kapiel.js` (pula baniek i kropli) | czysty moduł; ruch przez transform i opacity w `Particles.tsx` |

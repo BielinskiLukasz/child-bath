@@ -1,0 +1,31 @@
+.little-world { background: var(--world-paper, var(--paper)); }
+.scene { background: var(--sky-bottom, #e8efdf); }
+.world-layer, .world-board, .world-backdrop, .world-props {
+  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+}
+.world-board { isolation: isolate; }
+.world-backdrop, .world-props { display: block; }
+.room-evening { opacity: calc(var(--night, 0) * 0.36); }
+.spa-lantern-glow { opacity: calc(0.07 + var(--night, 0) * 0.18); }
+.clock-hand { transform-box: view-box; transform-origin: 0 0; }
+.clock-hand--hour { transform: rotate(calc(var(--day-hour, 12) * 30deg)); }
+.clock-hand--minute { transform: rotate(calc(var(--day-hour, 12) * 360deg)); }
+.world-companion { position: absolute; pointer-events: none; overflow: visible; }
+.world-companion__body { animation: world-bob 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center 76%; }
+.world-steam { animation: world-steam 6.4s ease-in-out infinite; }
+@keyframes world-bob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-2px) rotate(3deg); }
+}
+@keyframes world-steam {
+  0%, 100% { transform: translateY(3px); opacity: .19; }
+  50% { transform: translateY(-6px); opacity: .47; }
+}
+.little-world[data-paused="true"] :is(.world-companion__body, .world-steam),
+.little-world[data-still="true"] :is(.world-companion__body, .world-steam, .door-preview-animal__fade, .door-preview-animal .animal-svg, .action, .bath-animal__reward),
+.little-world[data-still="true"] .bath-control::before { animation-play-state: paused; }
+.little-world[data-still="true"] :is(.door-preview-animal__fade, .action, .bath-animal__reward) { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .world-companion__body, .world-steam { animation: none; }
+  .world-steam { opacity: .32; }
+}

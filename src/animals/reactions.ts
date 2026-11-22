@@ -23,8 +23,8 @@ export function reactionDuration(kind: ReactionKind, pace: number): number {
   return Math.max(TIMING.minReaction, REACTIONS[kind].seconds * pace);
 }
 
-export function rewardReaction(def: AnimalDef, seed: number, pace: number, reduced: boolean): ReactionRun {
-  const possible = reduced ? def.reactions.filter(isFaceReaction) : def.reactions.filter((kind) => kind !== "yawn");
+export function rewardReaction(def: AnimalDef, seed: number, pace: number, reduced: boolean, evening = false): ReactionRun {
+  const possible = reduced ? def.reactions.filter(isFaceReaction) : def.reactions.filter((kind) => evening || kind !== "yawn");
   const kind = possible.length ? createRng(seed ^ 0x6645ca81).pick(possible) : "squint";
   return { kind, seconds: reactionDuration(kind, pace) };
 }

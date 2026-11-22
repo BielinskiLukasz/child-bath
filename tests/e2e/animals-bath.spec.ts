@@ -9,7 +9,7 @@ for (const animal of ANIMAL_IDS) {
     const now = new Date("2026-06-01T12:00:00Z");
     await page.clock.install({ time: now });
     await page.clock.pauseAt(new Date(now.getTime() + 1000));
-    await page.goto(`./?test=1&seed=7&animal=${animal}`);
+    await page.goto(`./?test=1&seed=7&animal=${animal}&scenery=bathroom&still=1`);
     const stage = page.locator(".bath-stage");
     const animalArt = page.locator(".bath-animal");
     const box = page.locator(".bath-box");

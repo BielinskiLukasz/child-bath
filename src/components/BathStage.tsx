@@ -2,7 +2,7 @@
 // Zmiany: React, logiczna siatka i wspólna ścieżka stemplowania dla wszystkich rodzajów wejścia.
 import {
   useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState,
-  type CSSProperties, type ComponentType, type Dispatch, type Ref,
+  type CSSProperties, type Dispatch, type Ref,
 } from "react";
 import { insideMask, silhouettePath } from "../animals/mask";
 import { isFaceReaction, rewardReaction, type ReactionRun } from "../animals/reactions";
@@ -23,13 +23,16 @@ import type { InputLatch } from "../input/latch";
 import { createRng, MAX_SEED } from "../random";
 import type { SessionParams } from "../settings/testParams";
 import { fadeDuration, scaled, TIMING } from "../timing";
-import type { DoorPreview } from "./DoorPreview";
+import { timeOfDay } from "../world/atmosphere";
+import type { Rect, Size } from "../world/layout";
+import type { WaterSource } from "../world/scenery";
+import type { WorldClock } from "../world/worldClock";
+import { DoorPreview } from "./DoorPreview";
 import { LayerCanvas, type LayerHandle } from "./LayerCanvas";
 import { Particles, type ParticlesHandle } from "./Particles";
 import { ToolCursor, type ToolCursorHandle } from "./ToolCursor";
 
 const ASPECT = LW / LH;
-const BOX_MIN = 160, BOX_MAX = 640;
 const KEY_TOOL = -1, AUTO_TOOL = -2;
 const clamp01 = (t: number) => Math.max(0, Math.min(1, t));
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -52,46 +55,26 @@ interface Props {
   latch: InputLatch;
   reduced: boolean;
   onAutoBusy(busy: boolean): void;
-  Preview: ComponentType<React.ComponentProps<typeof DoorPreview>>;
+  scene: Size;
+  washBox: Rect;
+  door: Rect;
+  water: WaterSource;
+  readWorld(): WorldClock;
 }
 
-export function BathStage({ ref, session, state, animal, dispatch, latch, reduced, onAutoBusy, Preview }: Props) {
+export function BathStage({ ref, session, state, animal, dispatch, latch, reduced, onAutoBusy, scene, washBox, door, water, readWorld }: Props) {
   const { pace, ease, oneButton, seed, allowedAnimals } = session;
   const particleLimit = reduced ? REDUCED_PARTICLE_LIMIT : undefined;
   const fxRng = useMemo(() => createRng(seed ^ 0x5bd1e995), [seed]);
   const nextSeed = useMemo(() => createRng(state.animalSeed ^ 0x6d2b79f5).int(1, MAX_SEED), [state.animalSeed]);
   const nextAnimal = useMemo(() => pickAnimal(nextSeed, animal.id, allowedAnimals), [nextSeed, animal.id, allowedAnimals]);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [scene, setScene] = useState({ width: 0, height: 0 });
-  useLayoutEffect(() => {
-    const element = stageRef.current;
-    if (!element) return;
-    const update = () => {
-      const { width, height } = element.getBoundingClientRect();
-      setScene((previous) => previous.width === width && previous.height === height ? previous : { width, height });
-    };
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-
-  // Rezerwujemy małą wnękę z lewej strony; środek nadal mieści właściwe pudełko.
-  const margin = Math.min(18, scene.width * 0.038);
-  const doorWidth = Math.min(126, scene.width * 0.27, scene.height * 0.34);
-  const doorHeight = doorWidth * 1.36;
-  const door = { x: margin, y: Math.max(0, scene.height - doorHeight - 10), width: doorWidth, height: doorHeight };
-  const leftSpace = Math.max(0, scene.width - doorWidth - margin * 2 - 6);
-  const available = Math.min(scene.height, leftSpace / ASPECT);
-  const preferred = Math.max(BOX_MIN, Math.min(available * 0.96, BOX_MAX));
-  const boxH = Math.max(0, Math.min(Math.round(preferred), Math.floor(available)));
-  const boxW = boxH * ASPECT;
-  const boxLeft = Math.max((scene.width - boxW) / 2, door.x + door.width + 4);
-  const boxTop = (scene.height - boxH) / 2;
+  const { width: boxW, height: boxH, x: boxLeft, y: boxTop } = washBox;
   const previewW = door.width * 0.89;
   const previewH = previewW / ASPECT;
   const previewX = door.x + (door.width - previewW) / 2;
   const previewY = door.y + door.height * 0.91 - previewH;
+  const currentTime = timeOfDay(readWorld().hour);
+  const evening = currentTime === "dusk" || currentTime === "night";
 
   const layerSeed = useMemo(() => createRng(state.animalSeed ^ 0x37f811e9).int(1, MAX_SEED), [state.animalSeed]);
   const silhouette = useMemo(() => silhouettePath(animal), [animal]);
@@ -177,11 +160,11 @@ export function BathStage({ ref, session, state, animal, dispatch, latch, reduce
       setReaction(null);
     } else if (state.animalCount !== reactedTurn.current) {
       reactedTurn.current = state.animalCount;
-      setReaction(rewardReaction(animal, state.animalSeed, pace, reduced));
+      setReaction(rewardReaction(animal, state.animalSeed, pace, reduced, evening));
     } else if (reduced) {
       setReaction((current) => current && isFaceReaction(current.kind) ? current : null);
     }
-  }, [animal, pace, reduced, state.animalCount, state.animalSeed, state.phase]);
+  }, [animal, evening, pace, reduced, state.animalCount, state.animalSeed, state.phase]);
 
   useEffect(() => {
     if (state.phase !== "stage_in" || state.layerReady) return;
@@ -296,12 +279,12 @@ export function BathStage({ ref, session, state, animal, dispatch, latch, reduce
   } as CSSProperties;
 
   return (
-    <div ref={stageRef} className="bath-stage" data-phase={state.phase} data-step={step}
+    <div className="bath-stage" data-phase={state.phase} data-step={step}
       data-progress={state.progress.toFixed(2)} data-animal={animal.id} data-animal-turn={state.animalCount}
       data-seed={seed} data-auto-strokes={strokeCount}>
-      <Preview layout={door} animalStyle={previewStyle} waiting={waiting} def={animal} scarfOpacity={1 - scarfTransfer} />
+      <DoorPreview animalStyle={previewStyle} waiting={waiting} def={animal} scarfOpacity={1 - scarfTransfer} dozing={evening} />
       <HangingScarf def={animal} style={{
-        left: scene.width - hangerSize - margin, top: scene.height * 0.18,
+        left: scene.width - hangerSize - Math.min(18, scene.width * 0.038), top: scene.height * 0.37,
         width: hangerSize, height: hangerSize * 1.5, opacity: scarfTransfer * (leaving ? 1 - eased : 1),
       }} />
       <div ref={box} className="bath-box" data-phase={state.phase} style={boxStyle} role="application"
@@ -324,7 +307,7 @@ export function BathStage({ ref, session, state, animal, dispatch, latch, reduce
         </div>
         <LayerCanvas ref={layer} opacity={layerOpacity} />
         <Particles ref={particles} />
-        <ToolCursor ref={tools} tool={step} radius={radius} />
+        <ToolCursor ref={tools} tool={step} radius={radius} water={water} />
       </div>
     </div>
   );
